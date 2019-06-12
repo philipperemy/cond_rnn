@@ -17,7 +17,7 @@ The conditional RNN expects 3 parameters:
 
 - `units`: Number of units for the RNN.
 - `inputs`: Input tensor. Shape is `(batch_size, timesteps, input_dim)`.
-- `cond`: Condition tensor. Shape is `(batch_size, num_classes)`.
+- `cond`: Condition tensor. Tensor or list of tensors of shape `(batch_size, cond_dim)`. Different conditions can have different `cond_dim`.
 
 ```python
 from cond_rnn import ConditionalRNN
