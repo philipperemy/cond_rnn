@@ -25,4 +25,6 @@ We have two conditions:
 
 The target is to count the number of 1s in both conditions. In this case, the target is 3.
 
+Again, we give pure noise to the RNN layer as input.
+
 This example ensures that the network can read from both conditions to make a prediction. If one condition was to be missing, then the task would be impossible to solve.
