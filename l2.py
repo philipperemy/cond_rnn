@@ -1,7 +1,7 @@
 import numpy as np
 import tensorflow as tf
 
-from rnn_cond import ConditionalRNN
+from cond_rnn import ConditionalRNN
 
 NUM_CLASSES = 3
 NUM_SAMPLES = 1000
