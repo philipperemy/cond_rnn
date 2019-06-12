@@ -4,12 +4,13 @@ import tensorflow as tf
 # https://adventuresinmachinelearning.com/recurrent-neural-networks-lstm-tutorial-tensorflow/
 
 num_classes = 3
-batch_size = 5
+batch_size = 1000
 time_steps = 10
 input_dim = 1
 hidden_size = 12
 
-tf.enable_eager_execution()
+tf.Graph()
+sess = tf.Session()
 
 init_state_cond_np = np.zeros(shape=[batch_size, num_classes])
 for i, kk in enumerate(init_state_cond_np):
@@ -39,5 +40,18 @@ outputs = outputs[:, -1, :]  # last step
 outputs = tf.keras.layers.Dense(units=num_classes, activation='softmax')(outputs)
 
 cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=outputs, labels=targets))
-print(cost)
-# optimizer = tf.train.AdamOptimizer().minimize(cost)
+optimizer = tf.train.AdamOptimizer().minimize(cost)
+
+sess.run(tf.global_variables_initializer())
+
+for epoch in range(1_000_000):
+    sess.run(optimizer)
+    if epoch % 10 == 0:
+        o_ = sess.run(outputs)
+        t_ = sess.run(targets)
+        acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
+        print(f'cost = {sess.run(cost):.4f}, acc = {acc:.2f}.')
+        print(o_[0], t_[0])
+        print(o_[1], t_[1])
+        print(o_[2], t_[2])
+
