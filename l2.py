@@ -14,13 +14,12 @@ sess = tf.Session()
 
 init_state_cond_np = np.zeros(shape=[batch_size, num_classes])
 for i, kk in enumerate(init_state_cond_np):
+    # kk[i % (num_classes - 1)] = 1
     kk[i % num_classes] = 1
 init_state_cond_np = np.tile(init_state_cond_np, [2, 1, 1])
-targets = tf.constant(dtype=tf.float32, value=init_state_cond_np[0])
 
-# inputs = tf.placeholder(dtype=tf.float32, shape=(None, time_steps, input_dim))
-inputs = tf.constant(dtype=tf.float32, value=np.random.uniform(size=(batch_size, time_steps, input_dim)))
-# init_state = tf.placeholder(tf.float32, [1, 2, batch_size, hidden_size])
+inputs = tf.placeholder(name='inputs', dtype=tf.float32, shape=(batch_size, time_steps, input_dim))
+targets = tf.placeholder(name='targets', dtype=tf.float32, shape=(batch_size, num_classes))
 
 init_state_cond = tf.constant(dtype=tf.float32, value=init_state_cond_np)
 
@@ -44,14 +43,30 @@ optimizer = tf.train.AdamOptimizer().minimize(cost)
 
 sess.run(tf.global_variables_initializer())
 
-for epoch in range(1_000_000):
-    sess.run(optimizer)
-    if epoch % 10 == 0:
-        o_ = sess.run(outputs)
-        t_ = sess.run(targets)
-        acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
-        print(f'cost = {sess.run(cost):.4f}, acc = {acc:.2f}.')
-        print(o_[0], t_[0])
-        print(o_[1], t_[1])
-        print(o_[2], t_[2])
+train_inputs = np.random.uniform(size=(batch_size, time_steps, input_dim))
+train_targets = init_state_cond_np[0]
 
+test_inputs = np.random.uniform(size=(batch_size, time_steps, input_dim)) * 5
+# test_inputs = np.random.normal(loc=0, scale=2, size=(batch_size, time_steps, input_dim))
+test_targets = init_state_cond_np[0]
+
+train_feed_dict = {inputs: train_inputs, targets: train_targets}
+test_feed_dict = {inputs: test_inputs, targets: test_targets}
+
+for epoch in range(1_000_000):
+
+    sess.run(optimizer, train_feed_dict)
+    if epoch % 10 == 0:
+        o_, t_ = sess.run([outputs, targets], train_feed_dict)
+        acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
+        print(f'train cost = {sess.run(cost, train_feed_dict):.4f}, train acc = {acc:.2f}.')
+        # print(o_[0], t_[0])
+        # print(o_[1], t_[1])
+        # print(o_[2], t_[2])
+
+        o_, t_ = sess.run([outputs, targets], test_feed_dict)
+        acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
+        print(f'test cost = {sess.run(cost, train_feed_dict):.4f}, test acc = {acc:.2f}.')
+        # print(o_[0], t_[0])
+        # print(o_[1], t_[1])
+        # print(o_[2], t_[2])
