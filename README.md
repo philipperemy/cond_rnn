@@ -13,6 +13,10 @@ Useful if you have time series data with other inputs that do not depend on time
 
 ## API
 
+```python
+outputs = cond_rnn.ConditionalRNN(units=NUM_CELLS, cell='GRU', initial_cond=cond)(inputs)
+```
+
 The conditional RNN expects those parameters:
 
 - `units`: int, The number of units in the RNN Cell.
@@ -21,12 +25,23 @@ The conditional RNN expects those parameters:
 - `cond`: `2-D` Tensor or list of tensors with shape `[batch_size, cond_dim]`. In the case of a list, the tensors can have a different `cond_dim`.
 - ` *args, **kwargs`: Any parameters of the [tf.keras.layers.RNN](https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN) class, such as `return_sequences`, `return_state`, `stateful`, `unroll`...
 
+Here is a self contained example of how it works:
+
 ```python
+import numpy as np
+import tensorflow as tf
 from cond_rnn import ConditionalRNN
-outputs = ConditionalRNN(units=NUM_CELLS, cell='GRU', initial_cond=cond)(inputs)
+
+tf.enable_eager_execution() # just for the example to make it short.
+batch_size, time_steps, input_dim, cond_dim, num_cells = 16, 10, 1, 2, 8
+inputs = tf.constant(dtype=tf.float32, value=np.random.uniform(size=(batch_size, time_steps, input_dim)))
+cond = tf.constant(dtype=tf.float32, value=np.random.standard_normal(size=(batch_size, cond_dim)))
+outputs = ConditionalRNN(num_cells, cell='RNN', initial_cond=cond, return_sequences=True)(inputs)
+print(outputs.shape)  # (batch_size, time_steps, num_cells)
+# tf.Tensor([[[ 3.66962641e-01, ...,  3.78204376e-01]]], shape=(16, 10, 8), dtype=float32)
 ```
 
-Examples are provided in [examples/](examples/)
+For more examples, browse to [examples/](examples/)
 
 ## Background
 
