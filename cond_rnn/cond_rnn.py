@@ -12,16 +12,30 @@ class ConditionalRNN:
                  cell=tf.keras.layers.LSTMCell,  # Or LSTMCell(units).
                  initial_cond=None,  # Condition [2, batch_size, hidden_size]
                  *args, **kwargs):  # Arguments to the RNN like return_sequences, return_state...
+        if isinstance(cell, str):
+            if cell.upper() == 'GRU':
+                cell = tf.keras.layers.GRUCell
+            elif cell.upper() == 'LSTM':
+                cell = tf.keras.layers.LSTMCell
+            else:
+                raise Exception('Only GRU and LSTM are supported as cells.')
+        self._cell = cell if hasattr(cell, 'units') else cell(units=units)
         initial_cond_shape = _get_tensor_shape(initial_cond)
         if len(initial_cond_shape) == 2:
             initial_cond = tf.expand_dims(initial_cond, axis=0)
         first_cond_dim = _get_tensor_shape(initial_cond)[0]
-        if first_cond_dim == 1:
-            initial_cond = tf.tile(initial_cond, [2, 1, 1])
-        elif first_cond_dim != 2:
-            raise Exception('Initial cond should have shape: [2, batch_size, hidden_size]\n'
-                            'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
-        self._cell = cell if hasattr(cell, 'units') else cell(units=units)
+        if isinstance(self._cell, tf.keras.layers.LSTMCell):
+            if first_cond_dim == 1:
+                initial_cond = tf.tile(initial_cond, [2, 1, 1])
+            elif first_cond_dim != 2:
+                raise Exception('Initial cond should have shape: [2, batch_size, hidden_size]\n'
+                                'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
+        elif isinstance(self._cell, tf.keras.layers.GRUCell):
+            if first_cond_dim != 1:
+                raise Exception('Initial cond should have shape: [1, batch_size, hidden_size]\n'
+                                'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
+        else:
+            raise Exception('Only GRU and LSTM are supported as cells.')
         self.rnn = tf.keras.layers.RNN(cell=self._cell, *args, **kwargs)
         self.final_states = None
         self.init_state = None
