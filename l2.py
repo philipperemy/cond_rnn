@@ -33,7 +33,7 @@ def main():
     cond = tf.placeholder(name='conditions', dtype=DTYPE, shape=(NUM_SAMPLES, NUM_CLASSES))
 
     # Conditional RNN.
-    outputs = ConditionalRNN(NUM_CELLS, cell='GRU', initial_cond=cond, dtype=DTYPE)(inputs)
+    outputs = ConditionalRNN(NUM_CELLS, cell='RNN', initial_cond=cond, dtype=DTYPE)(inputs)
 
     # Classification layer.
     outputs = tf.keras.layers.Dense(units=NUM_CLASSES, activation='softmax')(outputs)
