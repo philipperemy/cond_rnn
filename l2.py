@@ -5,7 +5,7 @@ import tensorflow as tf
 
 num_classes = 3
 batch_size = 1000
-time_steps = 10
+time_steps = 100
 input_dim = 1
 hidden_size = 12
 
@@ -46,7 +46,7 @@ sess.run(tf.global_variables_initializer())
 train_inputs = np.random.uniform(size=(batch_size, time_steps, input_dim))
 train_targets = init_state_cond_np[0]
 
-test_inputs = np.random.uniform(size=(batch_size, time_steps, input_dim)) * 5
+test_inputs = np.random.uniform(size=(batch_size, time_steps, input_dim)) * 2
 # test_inputs = np.random.normal(loc=0, scale=2, size=(batch_size, time_steps, input_dim))
 test_targets = init_state_cond_np[0]
 
