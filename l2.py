@@ -21,6 +21,10 @@ def create_conditions():
     return conditions
 
 
+def acc(a: np.array, b: np.array):
+    return np.mean(a.argmax(axis=1) == b.argmax(axis=1))
+
+
 def main():
     tf.Graph()
     sess = tf.Session()
@@ -45,29 +49,21 @@ def main():
     train_targets = conditions[0]
 
     test_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM)) * 2
-    # test_inputs = np.random.normal(loc=0, scale=2, size=(batch_size, time_steps, input_dim))
     test_targets = conditions[0]
 
     train_feed_dict = {inputs: train_inputs, targets: train_targets, cond: conditions}
     test_feed_dict = {inputs: test_inputs, targets: test_targets, cond: conditions}
 
-    for epoch in range(1_000_000):
-
+    for epoch in range(1000):
         sess.run(optimizer, train_feed_dict)
         if epoch % 10 == 0:
-            o_, t_ = sess.run([outputs, targets], train_feed_dict)
-            acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
-            print(f'train cost = {sess.run(cost, train_feed_dict):.4f}, train acc = {acc:.2f}.')
-            # print(o_[0], t_[0])
-            # print(o_[1], t_[1])
-            # print(o_[2], t_[2])
-
-            o_, t_ = sess.run([outputs, targets], test_feed_dict)
-            acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
-            print(f'test cost = {sess.run(cost, train_feed_dict):.4f}, test acc = {acc:.2f}.')
-            # print(o_[0], t_[0])
-            # print(o_[1], t_[1])
-            # print(o_[2], t_[2])
+            train_outputs, train_loss = sess.run([outputs, cost], train_feed_dict)
+            test_outputs, test_loss = sess.run([outputs, cost], test_feed_dict)
+            train_acc = acc(train_outputs, train_targets)
+            test_acc = acc(test_outputs, test_targets)
+            print(f'[{str(epoch).zfill(4)}] train cost = {train_loss:.4f}, '
+                  f'train acc = {train_acc:.2f}, test cost = {test_loss:.4f}, '
+                  f'test acc = {test_acc:.2f}.')
 
 
 if __name__ == '__main__':
