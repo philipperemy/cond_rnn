@@ -11,12 +11,7 @@ class ConditionalRNN:
                  units,
                  cell=tf.keras.layers.LSTMCell,  # Or LSTMCell(units).
                  initial_cond=None,  # Condition [2, batch_size, hidden_size]
-                 dtype=tf.float32,
-                 return_sequences=False,
-                 return_states=False,
-                 go_backwards=False,
-                 unroll=False,
-                 ):
+                 *args, **kwargs):  # Arguments to the RNN like return_sequences, return_state...
         initial_cond_shape = _get_tensor_shape(initial_cond)
         if len(initial_cond_shape) == 2:
             initial_cond = tf.expand_dims(initial_cond, axis=0)
@@ -26,15 +21,8 @@ class ConditionalRNN:
         elif first_cond_dim != 2:
             raise Exception('Initial cond should have shape: [2, batch_size, hidden_size]\n'
                             'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
-        self.return_states = return_states
         self._cell = cell if hasattr(cell, 'units') else cell(units=units)
-
-        self.rnn = tf.keras.layers.RNN(cell=self._cell,
-                                       dtype=dtype,
-                                       return_state=self.return_states,
-                                       return_sequences=return_sequences,
-                                       go_backwards=go_backwards,
-                                       unroll=unroll)
+        self.rnn = tf.keras.layers.RNN(cell=self._cell, *args, **kwargs)
         self.final_states = None
         self.init_state = None
         if initial_cond is not None:
@@ -43,7 +31,7 @@ class ConditionalRNN:
 
     def __call__(self, inputs, *args, **kwargs):
         out = self.rnn(inputs, initial_state=self.init_state, *args, **kwargs)
-        if self.return_states:
+        if self.rnn.return_state:
             outputs, h, c = out
             final_states = tf.stack([h, c])
             return outputs, final_states
