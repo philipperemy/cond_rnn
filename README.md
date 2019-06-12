@@ -17,7 +17,7 @@ The conditional RNN expects those parameters:
 
 - `units`: int, The number of units in the RNN Cell.
 - `inputs`: `3-D` Tensor with shape `[batch_size, timesteps, input_dim]`.
-- `cond`: `2-D` Tensor or list of tensors of shape `(batch_size, cond_dim)`. Different conditions can have different `cond_dim`.
+- `cond`: `2-D` Tensor or list of tensors with shape `[batch_size, cond_dim]`. In the case of a list, the tensors can have a different `cond_dim`.
 - ` *args, **kwargs`: Any parameters of the [tf.keras.layers.RNN](https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN) class, such as `return_sequences`, `return_state`, `stateful`, `unroll`...
 
 ```python
