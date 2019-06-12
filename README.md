@@ -7,9 +7,12 @@ pip install cond-rnn
 
 ## API
 
+The conditional RNN expects 3 parameters:
+
+- `units`: Number of units for the RNN.
+- `inputs`: Input tensor. Shape is `(batch_size, timesteps, input_dim)`.
+- `cond`: Condition tensor. Shape is `(batch_size, num_classes)`.
 ```python
-# inputs.shape = (batch_size, timesteps, input_dim)
-# cond.shape = (batch_size, num_classes)
 outputs = ConditionalRNN(units=NUM_CELLS, cell='RNN', initial_cond=cond)(inputs)
 ```
 
