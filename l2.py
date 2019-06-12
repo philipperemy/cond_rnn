@@ -1,11 +1,13 @@
 import numpy as np
 import tensorflow as tf
 
+from rnn_cond import ConditionalRNN
+
 # https://adventuresinmachinelearning.com/recurrent-neural-networks-lstm-tutorial-tensorflow/
 
 num_classes = 3
 batch_size = 1000
-time_steps = 100
+time_steps = 10
 input_dim = 1
 hidden_size = 12
 
@@ -21,20 +23,13 @@ init_state_cond_np = np.tile(init_state_cond_np, [2, 1, 1])
 inputs = tf.placeholder(name='inputs', dtype=tf.float32, shape=(batch_size, time_steps, input_dim))
 targets = tf.placeholder(name='targets', dtype=tf.float32, shape=(batch_size, num_classes))
 
-init_state_cond = tf.constant(dtype=tf.float32, value=init_state_cond_np)
+cond = tf.constant(dtype=tf.float32, value=init_state_cond_np)
 
-# -> [2, batch_size, hidden_size]
-init_state = tf.keras.layers.Dense(units=hidden_size)(init_state_cond)
+rnn = ConditionalRNN(hidden_size, initial_cond=cond)
 
-cell = tf.keras.layers.LSTMCell(units=hidden_size)
+outputs, final_states = rnn(inputs)
 
-rnn = tf.keras.layers.RNN(cell=cell, dtype=tf.float32, return_state=True, return_sequences=True)
-
-init_state = tf.unstack(init_state, axis=0)
-outputs, h, c = rnn(inputs, initial_state=init_state)
-final_states = tf.stack([h, c])
-
-outputs = outputs[:, -1, :]  # last step
+# outputs = outputs[:, -1, :]  # last step
 
 outputs = tf.keras.layers.Dense(units=num_classes, activation='softmax')(outputs)
 
