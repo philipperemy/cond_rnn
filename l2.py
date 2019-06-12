@@ -17,7 +17,6 @@ def create_conditions():
     conditions = np.zeros(shape=[NUM_SAMPLES, NUM_CLASSES])
     for i, kk in enumerate(conditions):
         kk[i % NUM_CLASSES] = 1
-    conditions = np.tile(conditions, [2, 1, 1])
     return conditions
 
 
@@ -30,7 +29,7 @@ def main():
 
     inputs = tf.placeholder(name='inputs', dtype=DTYPE, shape=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
     targets = tf.placeholder(name='targets', dtype=DTYPE, shape=(NUM_SAMPLES, NUM_CLASSES))
-    cond = tf.placeholder(name='conditions', dtype=DTYPE, shape=[2, NUM_SAMPLES, NUM_CLASSES])
+    cond = tf.placeholder(name='conditions', dtype=DTYPE, shape=(NUM_SAMPLES, NUM_CLASSES))
 
     rnn = ConditionalRNN(NUM_CELLS, initial_cond=cond)
     outputs = rnn(inputs)
@@ -45,10 +44,10 @@ def main():
     conditions = create_conditions()
 
     train_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
-    train_targets = conditions[0]
+    train_targets = conditions
 
     test_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM)) * 2
-    test_targets = conditions[0]
+    test_targets = conditions
 
     train_feed_dict = {inputs: train_inputs, targets: train_targets, cond: conditions}
     test_feed_dict = {inputs: test_inputs, targets: test_targets, cond: conditions}
