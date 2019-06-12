@@ -27,28 +27,34 @@ def acc(a: np.array, b: np.array):
 def main():
     sess = tf.Session()
 
+    # Placeholders.
     inputs = tf.placeholder(name='inputs', dtype=DTYPE, shape=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
     targets = tf.placeholder(name='targets', dtype=DTYPE, shape=(NUM_SAMPLES, NUM_CLASSES))
     cond = tf.placeholder(name='conditions', dtype=DTYPE, shape=(NUM_SAMPLES, NUM_CLASSES))
 
-    rnn = ConditionalRNN(NUM_CELLS, initial_cond=cond)
-    outputs = rnn(inputs)
+    # Conditional RNN.
+    outputs = ConditionalRNN(NUM_CELLS, initial_cond=cond, dtype=DTYPE)(inputs)
 
+    # Classification layer.
     outputs = tf.keras.layers.Dense(units=NUM_CLASSES, activation='softmax')(outputs)
 
+    # Loss + Optimizer.
     cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=outputs, labels=targets))
     optimizer = tf.train.AdamOptimizer().minimize(cost)
 
+    # Initialize variables (tensorflow)
     sess.run(tf.global_variables_initializer())
 
+    # Define (real) data.
     train_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
     test_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM)) * 2
-
     test_targets = train_targets = create_conditions()
 
+    # Define the binding between placeholders and real data.
     train_feed_dict = {inputs: train_inputs, targets: train_targets, cond: train_targets}
     test_feed_dict = {inputs: test_inputs, targets: test_targets, cond: test_targets}
 
+    # Main loop. Optimize then evaluate.
     for epoch in range(1000):
         sess.run(optimizer, train_feed_dict)
         if epoch % 10 == 0:
