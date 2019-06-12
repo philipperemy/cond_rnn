@@ -4,6 +4,12 @@
 pip install cond-rnn
 ```
 
+## TL;DR
+
+Useful if you have time series data with inputs that do not depend on time. For example, weather data coming from two different cities: Paris and San Francisco. You want to predict the next temperature based on historical data. But at the same time, you expect the weather to change based on the city. You can either:
+- Combine the auxiliary features with the time series data (ugly!)
+- Concatenate the auxiliary features with the output of the RNN layer (some kind of post-RNN adjustment since the RNN layer won't see this aux. info).
+- Use this lib! Long story short, initialize the RNN states with a learned representation of the condition (e.g. Paris or San Francisco).
 
 ## API
 
@@ -19,6 +25,8 @@ outputs = ConditionalRNN(units=NUM_CELLS, cell='RNN', initial_cond=cond)(inputs)
 ## Background
 
 Implementation inspired from the very good answer: [Adding Features To Time Series Model LSTM](https://datascience.stackexchange.com/a/17139).
+
+**==> The option 3 is implemented in this lib <==**
 
 For RNNs (e.g., LSTMs and GRUs), the layer input is a list of timesteps, and each timestep is a feature tensor. That means that you could have a input tensor like this (in Pythonic notation):
 
