@@ -3,65 +3,72 @@ import tensorflow as tf
 
 from rnn_cond import ConditionalRNN
 
+NUM_CLASSES = 3
+NUM_SAMPLES = 1000
+TIME_STEPS = 10
+INPUT_DIM = 1
+NUM_CELLS = 12
+DTYPE = tf.float32
+
+
 # https://adventuresinmachinelearning.com/recurrent-neural-networks-lstm-tutorial-tensorflow/
 
-num_classes = 3
-batch_size = 1000
-time_steps = 10
-input_dim = 1
-hidden_size = 12
+def create_conditions():
+    conditions = np.zeros(shape=[NUM_SAMPLES, NUM_CLASSES])
+    for i, kk in enumerate(conditions):
+        kk[i % NUM_CLASSES] = 1
+    conditions = np.tile(conditions, [2, 1, 1])
+    return conditions
 
-tf.Graph()
-sess = tf.Session()
 
-init_state_cond_np = np.zeros(shape=[batch_size, num_classes])
-for i, kk in enumerate(init_state_cond_np):
-    # kk[i % (num_classes - 1)] = 1
-    kk[i % num_classes] = 1
-init_state_cond_np = np.tile(init_state_cond_np, [2, 1, 1])
+def main():
+    tf.Graph()
+    sess = tf.Session()
 
-inputs = tf.placeholder(name='inputs', dtype=tf.float32, shape=(batch_size, time_steps, input_dim))
-targets = tf.placeholder(name='targets', dtype=tf.float32, shape=(batch_size, num_classes))
+    inputs = tf.placeholder(name='inputs', dtype=DTYPE, shape=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
+    targets = tf.placeholder(name='targets', dtype=DTYPE, shape=(NUM_SAMPLES, NUM_CLASSES))
+    cond = tf.placeholder(name='conditions', dtype=DTYPE, shape=[2, NUM_SAMPLES, NUM_CLASSES])
 
-cond = tf.constant(dtype=tf.float32, value=init_state_cond_np)
+    rnn = ConditionalRNN(NUM_CELLS, initial_cond=cond)
+    outputs, _ = rnn(inputs)
 
-rnn = ConditionalRNN(hidden_size, initial_cond=cond)
+    outputs = tf.keras.layers.Dense(units=NUM_CLASSES, activation='softmax')(outputs)
 
-outputs, final_states = rnn(inputs)
+    cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=outputs, labels=targets))
+    optimizer = tf.train.AdamOptimizer().minimize(cost)
 
-# outputs = outputs[:, -1, :]  # last step
+    sess.run(tf.global_variables_initializer())
 
-outputs = tf.keras.layers.Dense(units=num_classes, activation='softmax')(outputs)
+    conditions = create_conditions()
 
-cost = tf.reduce_mean(tf.nn.softmax_cross_entropy_with_logits_v2(logits=outputs, labels=targets))
-optimizer = tf.train.AdamOptimizer().minimize(cost)
+    train_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
+    train_targets = conditions[0]
 
-sess.run(tf.global_variables_initializer())
+    test_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM)) * 2
+    # test_inputs = np.random.normal(loc=0, scale=2, size=(batch_size, time_steps, input_dim))
+    test_targets = conditions[0]
 
-train_inputs = np.random.uniform(size=(batch_size, time_steps, input_dim))
-train_targets = init_state_cond_np[0]
+    train_feed_dict = {inputs: train_inputs, targets: train_targets, cond: conditions}
+    test_feed_dict = {inputs: test_inputs, targets: test_targets, cond: conditions}
 
-test_inputs = np.random.uniform(size=(batch_size, time_steps, input_dim)) * 2
-# test_inputs = np.random.normal(loc=0, scale=2, size=(batch_size, time_steps, input_dim))
-test_targets = init_state_cond_np[0]
+    for epoch in range(1_000_000):
 
-train_feed_dict = {inputs: train_inputs, targets: train_targets}
-test_feed_dict = {inputs: test_inputs, targets: test_targets}
+        sess.run(optimizer, train_feed_dict)
+        if epoch % 10 == 0:
+            o_, t_ = sess.run([outputs, targets], train_feed_dict)
+            acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
+            print(f'train cost = {sess.run(cost, train_feed_dict):.4f}, train acc = {acc:.2f}.')
+            # print(o_[0], t_[0])
+            # print(o_[1], t_[1])
+            # print(o_[2], t_[2])
 
-for epoch in range(1_000_000):
+            o_, t_ = sess.run([outputs, targets], test_feed_dict)
+            acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
+            print(f'test cost = {sess.run(cost, train_feed_dict):.4f}, test acc = {acc:.2f}.')
+            # print(o_[0], t_[0])
+            # print(o_[1], t_[1])
+            # print(o_[2], t_[2])
 
-    sess.run(optimizer, train_feed_dict)
-    if epoch % 10 == 0:
-        o_, t_ = sess.run([outputs, targets], train_feed_dict)
-        acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
-        print(f'train cost = {sess.run(cost, train_feed_dict):.4f}, train acc = {acc:.2f}.')
-        # print(o_[0], t_[0])
-        # print(o_[1], t_[1])
-        # print(o_[2], t_[2])
 
-        o_, t_ = sess.run([outputs, targets], test_feed_dict)
-        acc = np.mean(o_.argmax(axis=1) == t_.argmax(axis=1))
-        print(f'test cost = {sess.run(cost, train_feed_dict):.4f}, test acc = {acc:.2f}.')
-        # print(o_[0], t_[0])
-        # print(o_[1], t_[1])
-        # print(o_[2], t_[2])
+if __name__ == '__main__':
+    main()
