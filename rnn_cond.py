@@ -1,6 +1,10 @@
 import tensorflow as tf
 
 
+def _get_tensor_shape(t):
+    return t.get_shape().as_list()
+
+
 class ConditionalRNN:
 
     def __init__(self,
@@ -13,8 +17,18 @@ class ConditionalRNN:
                  go_backwards=False,
                  unroll=False,
                  ):
+        initial_cond_shape = _get_tensor_shape(initial_cond)
+        if len(initial_cond_shape) == 2:
+            initial_cond = tf.expand_dims(initial_cond, axis=0)
+        first_cond_dim = _get_tensor_shape(initial_cond)[0]
+        if first_cond_dim == 1:
+            initial_cond = tf.tile(initial_cond, [2, 1, 1])
+        elif first_cond_dim != 2:
+            raise Exception('Initial cond should have shape: [2, batch_size, hidden_size]\n'
+                            'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
         self.return_states = return_states
         self._cell = cell if hasattr(cell, 'units') else cell(units=units)
+
         self.rnn = tf.keras.layers.RNN(cell=self._cell,
                                        dtype=dtype,
                                        return_state=self.return_states,
