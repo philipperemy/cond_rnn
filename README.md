@@ -24,6 +24,8 @@ from cond_rnn import ConditionalRNN
 outputs = ConditionalRNN(units=NUM_CELLS, cell='GRU', initial_cond=cond)(inputs)
 ```
 
+Examples are provided in [examples/](examples/)
+
 ## Background
 
 This implementation was inspired from the very good answer: [Adding Features To Time Series Model LSTM](https://datascience.stackexchange.com/a/17139), which I quote below. The option 3 was implemented in this library (with a slight modification: we do not add 𝑣⃗ to the hidden state but rather overwrite the hidden state by 𝑣⃗).
