@@ -1,6 +1,6 @@
 ## Example 1
 
-Conditions are:
+We have one condition that can take the values:
 - [1, 0, 0]
 - [0, 1, 0]
 - [0, 0, 1]
