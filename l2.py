@@ -41,16 +41,13 @@ def main():
 
     sess.run(tf.global_variables_initializer())
 
-    conditions = create_conditions()
-
     train_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
-    train_targets = conditions
-
     test_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM)) * 2
-    test_targets = conditions
 
-    train_feed_dict = {inputs: train_inputs, targets: train_targets, cond: conditions}
-    test_feed_dict = {inputs: test_inputs, targets: test_targets, cond: conditions}
+    test_targets = train_targets = create_conditions()
+
+    train_feed_dict = {inputs: train_inputs, targets: train_targets, cond: train_targets}
+    test_feed_dict = {inputs: test_inputs, targets: test_targets, cond: test_targets}
 
     for epoch in range(1000):
         sess.run(optimizer, train_feed_dict)
