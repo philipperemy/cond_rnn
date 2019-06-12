@@ -26,7 +26,6 @@ def acc(a: np.array, b: np.array):
 
 
 def main():
-    tf.Graph()
     sess = tf.Session()
 
     inputs = tf.placeholder(name='inputs', dtype=DTYPE, shape=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
@@ -34,7 +33,7 @@ def main():
     cond = tf.placeholder(name='conditions', dtype=DTYPE, shape=[2, NUM_SAMPLES, NUM_CLASSES])
 
     rnn = ConditionalRNN(NUM_CELLS, initial_cond=cond)
-    outputs, _ = rnn(inputs)
+    outputs = rnn(inputs)
 
     outputs = tf.keras.layers.Dense(units=NUM_CLASSES, activation='softmax')(outputs)
 
