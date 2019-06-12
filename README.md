@@ -13,7 +13,7 @@ Useful if you have time series data with other inputs that do not depend on time
 
 ## API
 
-The conditional RNN expects 3 main parameters:
+The conditional RNN expects those parameters:
 
 - `units`: int, The number of units in the RNN Cell.
 - `inputs`: `3-D` tensor with shape `[batch_size, timesteps, input_dim]`.
