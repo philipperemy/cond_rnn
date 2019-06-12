@@ -11,8 +11,6 @@ NUM_CELLS = 12
 DTYPE = tf.float32
 
 
-# https://adventuresinmachinelearning.com/recurrent-neural-networks-lstm-tutorial-tensorflow/
-
 def create_conditions():
     conditions = np.zeros(shape=[NUM_SAMPLES, NUM_CLASSES])
     for i, kk in enumerate(conditions):
