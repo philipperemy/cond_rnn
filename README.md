@@ -13,11 +13,12 @@ Useful if you have time series data with other inputs that do not depend on time
 
 ## API
 
-The conditional RNN expects 3 parameters:
+The conditional RNN expects 3 main parameters:
 
-- `units`: Number of units for the RNN.
-- `inputs`: Input tensor. Shape is `(batch_size, timesteps, input_dim)`.
-- `cond`: Condition tensor. Tensor or list of tensors of shape `(batch_size, cond_dim)`. Different conditions can have different `cond_dim`.
+- `units`: int, The number of units in the RNN Cell.
+- `inputs`: `3-D` tensor with shape `[batch_size, timesteps, input_dim]`.
+- `cond`: `2-D` tensor or list of tensors of shape `(batch_size, cond_dim)`. Different conditions can have different `cond_dim`.
+- ` *args, **kwargs`: Any parameters of the [tf.keras.layers.RNN](https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN) class, such as `return_sequences`, `return_state`, `stateful`, `unroll`...
 
 ```python
 from cond_rnn import ConditionalRNN
