@@ -1,4 +1,5 @@
 # Conditional RNN (Tensorflow)
+Conditions time series on categorical data.
 
 ```
 pip install cond-rnn
