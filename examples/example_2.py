@@ -38,7 +38,7 @@ def main():
     cond_list = [cond_1, cond_2]
 
     # Conditional RNN.
-    outputs = ConditionalRNN(NUM_CELLS, cell='LSTM', initial_cond=cond_list, dtype=DTYPE)(inputs)
+    outputs = ConditionalRNN(NUM_CELLS, cell='LSTM', cond=cond_list, dtype=DTYPE)(inputs)
 
     # Classification layer.
     outputs = tf.keras.layers.Dense(units=NUM_CLASSES, activation='softmax')(outputs)
