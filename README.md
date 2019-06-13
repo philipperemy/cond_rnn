@@ -37,7 +37,7 @@ tf.enable_eager_execution() # just for the example to make it short.
 batch_size, time_steps, input_dim, cond_dim, num_cells = 16, 10, 1, 2, 8
 inputs = tf.constant(dtype=tf.float32, value=np.random.uniform(size=(batch_size, time_steps, input_dim)))
 cond = tf.constant(dtype=tf.float32, value=np.random.standard_normal(size=(batch_size, cond_dim)))
-outputs = ConditionalRNN(num_cells, cell='RNN', initial_cond=cond, return_sequences=True)(inputs)
+outputs = ConditionalRNN(num_cells, cell='LSTM', initial_cond=cond, return_sequences=True)(inputs)
 print(outputs.shape)  # (batch_size, time_steps, num_cells)
 # tf.Tensor([[[ 3.66962641e-01, ...,  3.78204376e-01]]], shape=(16, 10, 8), dtype=float32)
 ```
