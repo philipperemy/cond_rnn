@@ -3,10 +3,10 @@ import tensorflow as tf
 
 from cond_rnn import ConditionalRNN
 
-NUM_SAMPLES = 1000
+NUM_SAMPLES = 5000
 TIME_STEPS = 10
 INPUT_DIM = 1
-NUM_CELLS = 24
+NUM_CELLS = 32
 DTYPE = tf.float32
 COND_1_DIM = 2
 COND_2_DIM = 3
@@ -38,7 +38,7 @@ def main():
     cond_list = [cond_1, cond_2]
 
     # Conditional RNN.
-    outputs = ConditionalRNN(NUM_CELLS, cell='LSTM', cond=cond_list, dtype=DTYPE)(inputs)
+    outputs = ConditionalRNN(NUM_CELLS, cell='LSTM', dtype=DTYPE)(inputs, cond=cond_list)
 
     # Classification layer.
     outputs = tf.keras.layers.Dense(units=NUM_CLASSES, activation='softmax')(outputs)
