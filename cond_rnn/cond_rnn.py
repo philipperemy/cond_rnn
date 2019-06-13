@@ -29,8 +29,10 @@ class ConditionalRNN:
             init_state_list = []
             for cond in initial_cond:
                 init_state_list.append(tf.keras.layers.Dense(units=units)(cond))
-            self.init_state = tf.add_n(init_state_list)  # for now we just add them.
-            self.init_state = tf.unstack(self.init_state, axis=0)
+            multi_cond_projector = tf.layers.Dense(1, activation=None, use_bias=True)
+            multi_cond_state = multi_cond_projector(tf.stack(init_state_list, axis=-1))
+            multi_cond_state = tf.squeeze(multi_cond_state, axis=-1)
+            self.init_state = tf.unstack(multi_cond_state, axis=0)
         else:
             initial_cond = self._standardize_condition(initial_cond)
             if initial_cond is not None:
