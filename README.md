@@ -45,7 +45,7 @@ For more examples, browse to [examples/](examples/)
 
 ## Background
 
-This implementation was inspired from the very good answer: [Adding Features To Time Series Model LSTM](https://datascience.stackexchange.com/a/17139), which I quote below. The option 3 was implemented in this library (with a slight modification: we do not add 𝑣⃗ to the hidden state but rather overwrite the hidden state by 𝑣⃗).
+This implementation was inspired from the very good answer: [Adding Features To Time Series Model LSTM](https://datascience.stackexchange.com/a/17139), which I quote below. The option 3 was implemented in this library (with a slight modification: we do not add 𝑣⃗ to the hidden state but rather overwrite the hidden state by 𝑣⃗. We can argue that this is almost exactly the same thing as 𝑣⃗ is obtained 𝑣⃗ =𝐖𝑥⃗ +𝑏⃗ where 𝑏⃗ could be the hidden state).
 
 For RNNs (e.g., LSTMs and GRUs), the layer input is a list of timesteps, and each timestep is a feature tensor. That means that you could have a input tensor like this (in Pythonic notation):
 
