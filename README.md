@@ -7,6 +7,10 @@ pip install cond-rnn
 
 ## TL;DR
 
+<p align="center">
+  <img src="misc/arch.png" width="500">
+</p>
+
 Useful if you have time series data with other inputs that do not depend on time. For example, weather data from two different cities: Paris and San Francisco. You want to predict the next temperature based on historical data. But at the same time, you expect the weather to change based on the city. You can either:
 - Combine the auxiliary features with the time series data (ugly!).
 - Concatenate the auxiliary features with the output of the RNN layer. It's some kind of post-RNN adjustment since the RNN layer won't see this auxiliary info.
