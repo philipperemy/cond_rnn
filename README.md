@@ -1,6 +1,9 @@
 # Conditional RNN (Tensorflow)
 Conditions time series on categorical data.
 
+[![Downloads](https://pepy.tech/badge/cond-rnn)](https://pepy.tech/project/cond-rnn)
+[![Downloads](https://pepy.tech/badge/cond-rnn/month)](https://pepy.tech/project/cond-rnn/month)
+
 ```
 pip install cond-rnn
 ```
