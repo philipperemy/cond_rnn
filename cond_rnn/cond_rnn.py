@@ -14,7 +14,7 @@ class ConditionalRNN:
                  *args, **kwargs):  # Arguments to the RNN like return_sequences, return_state...
         """
         Conditional RNN. Conditions time series on categorical data.
-        :param units: int, The number of units in the RNN Cell
+        :param units: int, The number of units in the RNN Cell.
         :param cell: string, cell class or object (pre-instantiated). In the case of string, 'GRU',
         'LSTM' and 'RNN' are supported.
         :param cond (optional): Tensor or list of tensors with shape [batch_size, cond_dim].
