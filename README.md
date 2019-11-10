@@ -101,7 +101,9 @@ In other cases, you may want to condition the LSTM on non-temporal data. For exa
     * For the very first timestep, add 𝑣⃗  to the hidden state of the RNN when calculating its value.
 This approach is the most "theoretically" correct, since it properly conditions the RNN on your non-temporal inputs, naturally solves the shape problem, and also avoids polluting your inputs timesteps with additional, non-temporal information. The downside is that this approach often requires graph-level control of your architecture, so if you are using a higher-level abstraction like Keras, you will find it hard to implement unless you add your own layer type.
 
-## Why not merge conditions in only one vector?
+## FAQ
+
+**Why not merge conditions in only one vector?**
 
 Refer to: https://github.com/philipperemy/cond_rnn/issues/3
 
