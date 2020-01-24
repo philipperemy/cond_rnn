@@ -1,4 +1,4 @@
-name: Lead Lag CI
+name: Cond RNN CI
 
 on: [push, pull_request]
 
