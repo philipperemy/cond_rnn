@@ -43,6 +43,9 @@ def main():
               validation_data=([test_inputs, test_targets], test_targets),
               epochs=10)
 
+    te_loss, te_acc = model.evaluate([test_inputs, test_targets], test_targets)
+    assert abs(te_acc - 1) < 1e-5
+
 
 if __name__ == '__main__':
     main()

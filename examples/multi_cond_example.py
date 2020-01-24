@@ -46,7 +46,10 @@ def main():
     model.compile(optimizer=optimizer, loss='categorical_crossentropy', metrics=['accuracy'])
     model.fit(x=[train_inputs, train_cond_1, train_cond_2], y=train_targets,
               validation_data=([test_inputs, test_cond_1, test_cond_2], test_targets),
-              epochs=10000)
+              epochs=10)
+
+    te_loss, te_acc = model.evaluate([test_inputs, test_cond_1, test_cond_2], test_targets)
+    assert abs(te_acc - 1) < 1e-5
 
 
 if __name__ == '__main__':
