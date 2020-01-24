@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='cond-rnn',
-    version='2.0',
+    version='2.1',
     description='Conditional RNN',
     author='Philippe Remy',
     license='MIT',
@@ -10,7 +10,7 @@ setup(
     long_description=open('README.md').read(),
     packages=['cond_rnn'],
     install_requires=[
-        'numpy'
+        'numpy',
         'tensorflow>=2.x',
     ]
 )
