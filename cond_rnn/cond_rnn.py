@@ -18,7 +18,7 @@ class ConditionalRNN(tf.keras.layers.Layer):
         :param args: Any parameters of the tf.keras.layers.RNN class, such as return_sequences,
         return_state, stateful, unroll...
         """
-        super().__init__(**kwargs)
+        super().__init__()
         self.units = units
         self.final_states = None
         self.init_state = None
