@@ -2,6 +2,7 @@ import numpy as np
 import tensorflow as tf
 
 from cond_rnn import ConditionalRNN
+from single_cond_example import create_conditions
 
 NUM_SAMPLES = 10_000
 INPUT_DIM = 1
