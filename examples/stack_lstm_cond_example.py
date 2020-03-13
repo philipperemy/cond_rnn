@@ -1,4 +1,13 @@
-from single_cond_example import *
+import numpy as np
+import tensorflow as tf
+
+from cond_rnn import ConditionalRNN
+
+NUM_SAMPLES = 10_000
+INPUT_DIM = 1
+NUM_CLASSES = 3
+TIME_STEPS = 10
+NUM_CELLS = 12
 
 
 def main():
