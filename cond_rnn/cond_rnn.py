@@ -53,11 +53,11 @@ class ConditionalRNN(tf.keras.layers.Layer):
             if first_cond_dim == 1:
                 initial_cond = tf.tile(initial_cond, [2, 1, 1])
             elif first_cond_dim != 2:
-                raise Exception('Initial cond should have shape: [2, batch_size, hidden_size]\n'
+                raise Exception('Initial cond should have shape: [2, batch_size, hidden_size] '
                                 'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
         elif isinstance(self._cell, tf.keras.layers.GRUCell) or isinstance(self._cell, tf.keras.layers.SimpleRNNCell):
             if first_cond_dim != 1:
-                raise Exception('Initial cond should have shape: [1, batch_size, hidden_size]\n'
+                raise Exception('Initial cond should have shape: [1, batch_size, hidden_size] '
                                 'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
         else:
             raise Exception('Only GRU, LSTM and RNN are supported as cells.')
