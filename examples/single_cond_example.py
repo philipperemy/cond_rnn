@@ -33,8 +33,8 @@ def main():
     model.compile(optimizer=Adam(learning_rate=0.1), loss='categorical_crossentropy', metrics=['accuracy'])
     model.fit(
         x=[train_inputs, train_targets], y=train_targets,
-              validation_data=([test_inputs, test_targets], test_targets),
-              epochs=10
+        validation_data=([test_inputs, test_targets], test_targets),
+        epochs=10
     )
 
     te_loss, te_acc = model.evaluate([test_inputs, test_targets], test_targets)
