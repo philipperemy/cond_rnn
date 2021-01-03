@@ -8,7 +8,7 @@ def _get_tensor_shape(t):
 class ConditionalRNN(tf.keras.layers.Layer):
 
     # Arguments to the RNN like return_sequences, return_state...
-    def __init__(self, units, dtype=tf.float32, cell=tf.keras.layers.LSTMCell, *args, **kwargs):
+    def __init__(self, units, cell=tf.keras.layers.LSTMCell, *args, **kwargs):
         """
         Conditional RNN. Conditions time series on categorical data.
         :param units: int, The number of units in the RNN Cell
