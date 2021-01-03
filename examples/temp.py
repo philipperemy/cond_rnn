@@ -17,6 +17,30 @@ from cond_rnn import ConditionalRNN
 
 
 # https://towardsdatascience.com/a-practical-guide-on-exploratory-data-analysis-historical-temperatures-of-cities-e4cb0ca03e07
+# Results:
+# -----------------------------------
+# Total sum of the training losses:
+# ConditionalRNN: 66.12524319 (std 0.0687)
+# RNN: 67.35795097 (std 0.0785)
+# Total sum of the testing losses:
+# ConditionalRNN: 66.36418901 (std 0.0300)
+# RNN: 66.65316922 (std 0.0328)
+# -----------------------------------
+# Best training loss:
+# ConditionalRNN: 1.642415467
+# RNN: 1.691594203
+# Best testing loss:
+# ConditionalRNN: 1.681800592
+# RNN: 1.688295371
+
+# Remarks: CondRNN 2.90% better than the RNN to lower the training loss. 0.4% better on the test set.
+# The model has a suboptimal generalization power (a quite shallow model), and this is why the
+# result on the test set is not as good as the training test. ON the training set, the model can
+# reduce the epistemic uncertainty. The RNN exhibits a higher training loss, meaning that it can't
+# explain more incertitude and consider the rest as noise. The conditionalRNN can use the categorical
+# data to explain some of the noise and provides a lower loss. With a better model (a few more layers
+# and more thoughts into this), we should lower the test set loss.
+
 
 def deterministic():
     set_seed(123)
