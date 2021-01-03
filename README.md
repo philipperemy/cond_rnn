@@ -28,7 +28,7 @@ outputs = cond_rnn.ConditionalRNN(units=NUM_CELLS, cell='GRU')([inputs, cond])
 The conditional RNN expects those parameters:
 
 - `units`: int, The number of units in the RNN Cell.
-- `cell`: string, cell class or object (pre-instantiated). In the case of string, 'GRU', 'LSTM' and 'RNN' are supported.
+- `cell`: string, cell class or object (pre-instantiated). In the case of string, `'GRU'`, `'LSTM'` and `'RNN'` are supported.
 - ` *args, **kwargs`: Any parameters of the [tf.keras.layers.RNN](https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN) class, such as `return_sequences`, `return_state`, `stateful`, `unroll`...
 
 **Call**
