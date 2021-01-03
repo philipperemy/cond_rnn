@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name='cond-rnn',
-    version='2.2',
+    version='2.3',
     description='Conditional RNN',
     author='Philippe Remy',
     license='MIT',
