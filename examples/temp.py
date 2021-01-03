@@ -16,6 +16,13 @@ from tqdm import tqdm
 # https://towardsdatascience.com/a-practical-guide-on-exploratory-data-analysis-historical-temperatures-of-cities-e4cb0ca03e07
 from cond_rnn import ConditionalRNN
 
+
+def deterministic():
+    set_seed(123)
+    np.random.seed(123)
+    random.seed(123)
+
+
 tf.keras.backend.set_floatx('float64')
 
 if not os.path.exists('out.json'):
@@ -49,7 +56,7 @@ countries_map = dict(zip(sorted(set(cond[:, 1])), range(num_countries)))
 cities_map = dict(zip(sorted(set(cond[:, 2])), range(num_cities)))
 
 window = 100
-num_samples = 100_000
+num_samples = 200_000
 loop_idx = 0
 x = np.zeros((num_samples, window, 1))
 c1 = np.zeros((num_samples, num_regions))
@@ -81,29 +88,37 @@ with tqdm(total=num_samples, desc='build inputs', file=sys.stdout) as bar:
             bar.update()
 
 model = Sequential(layers=[
-    ConditionalRNN(100, cell='GRU'),
+    ConditionalRNN(200, cell='GRU'),
     Dense(units=1, activation='linear')
 ])
 
 model2 = Sequential(layers=[
-    GRU(100),
+    GRU(200),
     Dense(units=1, activation='linear')
 ])
 
 model.compile(optimizer='adam', loss='mae')
 model2.compile(optimizer='adam', loss='mae')
 
-set_seed(123)
-np.random.seed(123)
-random.seed(123)
-model.fit(x=[x, c1, c2, c3], y=y, epochs=40, batch_size=1024, validation_split=0.2,
+cutoff = int(len(x) * 0.8)
+
+# Not exactly correct because we leak some future information (time-wise). But good enough.
+x_train = x[:cutoff]
+y_train = y[:cutoff]
+c1_train = c1[:cutoff]
+c2_train = c2[:cutoff]
+c3_train = c3[:cutoff]
+x_test = x[cutoff:]
+y_test = y[cutoff:]
+c1_test = c1[cutoff:]
+c2_test = c2[cutoff:]
+c3_test = c3[cutoff:]
+
+deterministic()
+model.fit(x=[x_train, c1_train, c2_train, c3_train], y=y, epochs=40,
+          batch_size=2048, validation_split=0.2,
           callbacks=[CSVLogger('results_cond_rnn.csv')])
 
-set_seed(123)
-np.random.seed(123)
-random.seed(123)
-model2.fit(x=x, y=y, epochs=40, batch_size=1024, validation_split=0.2,
+deterministic()
+model2.fit(x=x_train, y=y_train, epochs=40, batch_size=2048, validation_split=0.2,
            callbacks=[CSVLogger('results_rnn.csv')])
-
-model.summary()
-model2.summary()
