@@ -80,7 +80,8 @@ def fitmodel(df, conditional=False, test=True):
 
        Args:
             df (DataFrame): DataFrame which results from generate_set method after train_test split
-            window (int): for each output a certain number values, here days, are taken into account
+            conditional (boolean): select between conditional_rnn or regular tensorflow model
+            test (boolean): speed up calculation for testing
     '''
     if test: df = df.sample(10)
     cells = 200
