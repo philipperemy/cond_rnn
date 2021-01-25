@@ -111,7 +111,7 @@ df_data.head()
 # In[ ]:
 
 
-If sampling is put at monthly, the best results are obtained with a constant trend.
+# If sampling is put at monthly, the best results are obtained with a constant trend.
 
 
 # In[99]:
