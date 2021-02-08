@@ -21,7 +21,7 @@ Useful if you have time series data with other inputs that do not depend on time
 
 ## API
 
-Look a the real world example to see how CondRNN performs compared to LSTM, GRU: [here](examples/temperature).
+Before starting to use it, you can look at a real world example to see how CondRNN performs compared to LSTM, GRU: [here](examples/temperature).
 
 ```python
 outputs = cond_rnn.ConditionalRNN(units=NUM_CELLS, cell='GRU')([inputs, cond])
