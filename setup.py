@@ -11,6 +11,6 @@ setup(
     packages=['cond_rnn'],
     install_requires=[
         'numpy',
-        'tensorflow>=2.2.0',
+        'tensorflow>=2.3.0',
     ]
 )
