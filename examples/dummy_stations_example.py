@@ -12,6 +12,8 @@ from cond_rnn import ConditionalRNN
 # In addition, it has a variable that does not depend on time. It can be for example the temperature average
 # over a period of 50 years. We call it a condition.
 # We can also add the ID of the station in the data (as one-hot). This is another condition.
+# The goal here is to predict the next temperature at t+1 based on all the information up to t
+# and the two conditions: ID of station and temperature average long range.
 
 num_stations = 100  # number of stations.
 time_steps = 365  # time dimensions (e.g. 365 days).
