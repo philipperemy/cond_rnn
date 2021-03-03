@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
@@ -27,14 +26,15 @@ np.random.seed(123)
 continuous_data = np.cumsum(np.random.uniform(low=-1, high=1, size=(num_stations, time_steps, input_dim)), axis=1)
 continuous_data /= np.max(np.abs(continuous_data))
 
-plt.plot(continuous_data[0, ..., 0])
-plt.plot(continuous_data[0, ..., 1])
-plt.plot(continuous_data[0, ..., 2])
-plt.legend(['Input 0', 'Input 1', 'Input 2'])
-plt.title('Station 0 - continuous time-dependent inputs')
-plt.xlabel('time (days)')
-plt.ylabel('input (no unit)')
-plt.show()
+# import matplotlib.pyplot as plt
+# plt.plot(continuous_data[0, ..., 0])
+# plt.plot(continuous_data[0, ..., 1])
+# plt.plot(continuous_data[0, ..., 2])
+# plt.legend(['Input 0', 'Input 1', 'Input 2'])
+# plt.title('Station 0 - continuous time-dependent inputs')
+# plt.xlabel('time (days)')
+# plt.ylabel('input (no unit)')
+# plt.show()
 
 condition_data_1 = np.diag(num_stations * [1])
 condition_data_2 = np.mean(continuous_data, axis=(1, 2))
