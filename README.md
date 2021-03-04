@@ -19,9 +19,11 @@ Useful if you have time series data with other inputs that do not depend on time
 - Concatenate the auxiliary features with the output of the RNN layer. It's some kind of post-RNN adjustment since the RNN layer won't see this auxiliary info.
 - Or just use this library! Long story short, initialize the RNN states with a learned representation of the condition (e.g. Paris or San Francisco). This way you model *elegantly* `P(x_{t+1}|x_{0:t}, cond)`.
 
-## API
+## Sequential API
 
-Before starting to use it, you can look at a real world example to see how CondRNN performs compared to LSTM, GRU: [here](examples/temperature).
+Refer to the example posted below.
+
+## Functional API
 
 ```python
 outputs = cond_rnn.ConditionalRNN(units=NUM_CELLS, cell='GRU')([inputs, cond])
@@ -98,6 +100,8 @@ model = Sequential(layers=[
 model.compile(optimizer='adam', loss='mse')
 model.fit(x=[x, c1, c2], y=y, epochs=2, validation_split=0.2)
 ```
+
+You can also have a look at a real world example to see how CondRNN performs compared to LSTM, GRU: [here](examples/temperature).
 
 ## Background
 
