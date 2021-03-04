@@ -6,13 +6,13 @@ from cond_rnn import ConditionalRNN
 
 # This is an example with dummy to explain how to use CondRNN.
 # ______________________________________________________________________________________
-# In this example, we have gathered data from 100 stations on a period of 365 days.
-# Each station has a vector of 3 quantities (e.g. humidity, rainfall, temperature) per day.
-# In addition, it has a variable that does not depend on time. It can be for example the temperature average
-# over a period of 50 years. We call it a condition.
-# We can also add the ID of the station (as one-hot). This is another condition.
-# The goal here is to predict the next temperature at t+1 based on all the information up to t
-# and the two conditions: ID of station and temperature average long range.
+# In this example, we have gathered data from 100 stations over 365 days. Each station 
+# has a vector of 3 quantities (like humidity, rainfall, temperature) per day. In addition, 
+# it has a variable that does not depend on time. It can be the temperature average over 50 y
+# ears. We call it a condition. We can also add the ID of the station (as one-hot). It is 
+# another condition. The goal here is to predict the next temperature at t+1 based on all 
+# the information up to t, and the two conditions: ID of station and temperature average 
+# long-range.
 
 num_stations = 100  # number of stations.
 time_steps = 365  # time dimensions (e.g. 365 days).
