@@ -10,7 +10,7 @@ from cond_rnn import ConditionalRNN
 # Each station has a vector of 3 quantities (e.g. humidity, rainfall, temperature) per day.
 # In addition, it has a variable that does not depend on time. It can be for example the temperature average
 # over a period of 50 years. We call it a condition.
-# We can also add the ID of the station in the data (as one-hot). This is another condition.
+# We can also add the ID of the station (as one-hot). This is another condition.
 # The goal here is to predict the next temperature at t+1 based on all the information up to t
 # and the two conditions: ID of station and temperature average long range.
 
