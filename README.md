@@ -177,5 +177,5 @@ This approach is the most "theoretically" correct, since it properly conditions 
 
 ## References
 
-- https://adventuresinmachinelearning.com/recurrent-neural-networks-lstm-tutorial-tensorflow/
+- https://adventuresinmachinelearning.com/recurrent-neural-networks-lstm-tutorial-tensorflow
 - https://datascience.stackexchange.com/a/17139
