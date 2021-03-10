@@ -15,10 +15,10 @@ pip install cond-rnn
   <img src="misc/arch.png" width="500">
 </p>
 
-Useful if you have time series data with other inputs that do not depend on time. For example, weather data from two different cities: Paris and San Francisco. You want to predict the next temperature based on historical data. But at the same time, you expect the weather to change based on the city. You can either:
+Useful if you have some time series data with other inputs that do not depend on time. Let's consider some weather data coming from two different cities: Paris and San Francisco. You want to predict the next temperature data point based on the historical data. We expect the weather to change based on the city. You can either:
 - Combine the auxiliary features with the time series data (ugly!).
 - Concatenate the auxiliary features with the output of the RNN layer. It's some kind of post-RNN adjustment since the RNN layer won't see this auxiliary info.
-- Or just use this library! Long story short, initialize the RNN states with a learned representation of the condition (e.g. Paris or San Francisco). This way you model *elegantly* `P(x_{t+1}|x_{0:t}, cond)`.
+- Or just use this library! Long story short, we initialize the RNN states with a learned representation of the conditions (e.g. Paris or San Francisco). This way, you model *elegantly* `P(x_{t+1}|x_{0:t}, cond)`.
 
 ## Sequential API
 
@@ -27,6 +27,7 @@ Refer to the example posted below.
 ## Functional API
 
 ```python
+import cond_rnn
 outputs = cond_rnn.ConditionalRNN(units=NUM_CELLS, cell='GRU')([inputs, cond])
 ```
 
