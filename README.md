@@ -44,6 +44,8 @@ The conditional RNN expects those parameters:
 - `inputs`: `3-D` Tensor with shape `[batch_size, timesteps, input_dim]`.
 - `cond`: `2-D` Tensor or list of tensors with shape `[batch_size, cond_dim]`. In the case of a list, the tensors can have a different `cond_dim`.
 
+The output matches the output of the LSTM/GRU modules.
+
 
 ## Example
 
