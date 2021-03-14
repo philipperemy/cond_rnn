@@ -173,9 +173,7 @@ This approach is the most "theoretically" correct, since it properly conditions 
 
 ## FAQ
 
-**Why not merge conditions in only one vector?**
-
-- Refer to: https://github.com/philipperemy/cond_rnn/issues/3
+- [Why not merge conditions in only one vector?](https://github.com/philipperemy/cond_rnn/issues/3)
 
 ## References
 
