@@ -9,13 +9,15 @@ Conditions time series on categorical data.
 pip install cond-rnn
 ```
 
-## TL;DR
+## Introduction
 
 <p align="center">
   <img src="misc/arch.png" width="500">
 </p>
 
-Useful if you have some time series data with other inputs that do not depend on time. Let's consider some weather data coming from two different cities: Paris and San Francisco. You want to predict the next temperature data point based on the historical data. We expect the weather to change based on the city. You can either:
+CondRNN is useful if you have some time series data with external inputs that do not depend on time. 
+
+Let's consider some weather data for two different cities: Paris and San Francisco. The aim is to predict the next temperature data point. Based on our knowledge, the weather behaves differently depending on the city. You can either:
 - Combine the auxiliary features with the time series data (ugly!).
 - Concatenate the auxiliary features with the output of the RNN layer. It's some kind of post-RNN adjustment since the RNN layer won't see this auxiliary info.
 - Or just use this library! Long story short, we initialize the RNN states with a learned representation of the conditions (e.g. Paris or San Francisco). This way, you model *elegantly* `P(x_{t+1}|x_{0:t}, cond)`.
