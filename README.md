@@ -1,5 +1,5 @@
 # Conditional RNN (Tensorflow Keras)
-Conditions time series on categorical data.
+Conditions time series on time-invariant data.
 
 [![Downloads](https://pepy.tech/badge/cond-rnn)](https://pepy.tech/project/cond-rnn)
 [![Downloads](https://pepy.tech/badge/cond-rnn/month)](https://pepy.tech/project/cond-rnn/month)
