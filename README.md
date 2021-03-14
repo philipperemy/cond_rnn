@@ -1,4 +1,4 @@
-# Conditional RNN (Tensorflow Keras)
+# Conditional RNN for Tensorflow/Keras
 Conditions time series on time-invariant data.
 
 [![Downloads](https://pepy.tech/badge/cond-rnn)](https://pepy.tech/project/cond-rnn)
