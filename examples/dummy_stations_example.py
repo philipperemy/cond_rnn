@@ -1,4 +1,6 @@
 import numpy as np
+from tensorflow.keras import Input
+from tensorflow.keras import Model
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 
@@ -57,10 +59,21 @@ c2 = np.array(c2)
 
 print(x.shape, y.shape, c1.shape, c2.shape)
 
+print('Sequential API')
 model = Sequential(layers=[
     ConditionalRNN(10, cell='GRU'),  # num_cells = 10
     Dense(units=1, activation='linear')  # regression problem.
 ])
 
-model.compile(optimizer='adam', loss='mse')
-model.fit(x=[x, c1, c2], y=y, epochs=20, validation_split=0.2)
+model.compile(optimizer='adam', loss='mae')
+model.fit(x=[x, c1, c2], y=y, epochs=10, validation_split=0.2, verbose=2)
+
+print('Functional API')
+i1 = Input(shape=(window, input_dim))
+ic_1 = Input(shape=(condition_dim_1,))
+ic_2 = Input(shape=(condition_dim_2,))
+m = ConditionalRNN(10, cell='GRU')([i1, ic_1, ic_2])
+m = Dense(units=1, activation='linear')(m)  # regression problem.
+model2 = Model([i1, ic_1, ic_2], m)
+model2.compile(optimizer='adam', loss='mae')
+model2.fit(x=[x, c1, c2], y=y, epochs=10, validation_split=0.2, verbose=2)
