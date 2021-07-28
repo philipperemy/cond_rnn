@@ -1,5 +1,5 @@
 # Conditional RNN for Tensorflow/Keras
-Conditions time series on time-invariant data.
+Conditions time series on time-invariant data. Tested with Tensorflow 2.3, 2.4, 2.5 and 2.6.
 
 [![Downloads](https://pepy.tech/badge/cond-rnn)](https://pepy.tech/project/cond-rnn)
 [![Downloads](https://pepy.tech/badge/cond-rnn/month)](https://pepy.tech/project/cond-rnn/month)
