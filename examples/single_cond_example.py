@@ -32,6 +32,7 @@ def main():
 
     model.compile(optimizer=Adam(learning_rate=0.1), loss='categorical_crossentropy', metrics=['accuracy'])
     model.fit(
+        verbose=2,
         x=[train_inputs, train_targets], y=train_targets,
         validation_data=([test_inputs, test_targets], test_targets),
         epochs=10
