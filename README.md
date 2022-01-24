@@ -16,13 +16,13 @@ ConditionalRecurrent is on PyPI. You can also install it from the sources.
 pip install cond-rnn
 ```
 
-## What is a Conditional RNN?
+## What is Conditional RNN?
 
 <p align="center">
   <img src="misc/arch.png" width="500">
 </p>
 
-The `ConditionalRecurrent` module is useful if you have time series data with external inputs that do not depend on time. 
+The `ConditionalRecurrent` layer is useful if you have time series data with external inputs that do not depend on time. 
 
 Let's consider some weather data for two different cities: Paris and San Francisco. The aim is to predict the next temperature data point. Based on our knowledge, the weather behaves differently depending on the city. You can either:
 - Combine the auxiliary features with the time series data (ugly!).
@@ -45,7 +45,7 @@ This Keras wrapper `ConditionalRecurrent` allows to initiate the internal states
 
 ### Raises
 
-*ValueError*: If not initialized with a `tf.keras.layers.Layer` instance.
+*AssertionError*: If not initialized with a `tf.keras.layers.Layer` instance.
 
 ## Example
 
