@@ -1,10 +1,10 @@
 import numpy as np
-from single_cond_example import create_conditions
 from tensorflow.keras import Input, Model
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Dense, LSTM
 
 from cond_rnn import Conditional
+from single_cond_example import create_conditions
 
 NUM_SAMPLES = 10_000
 INPUT_DIM = 1
@@ -16,7 +16,7 @@ NUM_CELLS = 6
 def main():
     # Cannot do stacked ConditionalRNN with Sequential. Have to rely on the functional API. See below.
     model = Sequential(layers=[
-        Conditional(NUM_CELLS, cell='LSTM', return_sequences=True, name='cond_rnn_0'),
+        Conditional(LSTM(NUM_CELLS, return_sequences=True, name='cond_rnn_0')),
         LSTM(NUM_CELLS),
         Dense(units=NUM_CLASSES, activation='softmax')
     ])
@@ -25,9 +25,9 @@ def main():
     i = Input(shape=[TIME_STEPS, INPUT_DIM], name='input_0')
     c = Input(shape=[NUM_CLASSES], name='input_1')
     # add the condition tensor here.
-    x = Conditional(NUM_CELLS, cell='LSTM', return_sequences=True, name='cond_rnn_0')([i, c])
+    x = Conditional(LSTM(NUM_CELLS, return_sequences=True, name='cond_rnn_0'))([i, c])
     # and here too.
-    x = Conditional(NUM_CELLS, cell='LSTM', return_sequences=False, name='cond_rnn_1')([x, c])
+    x = Conditional(LSTM(NUM_CELLS, return_sequences=False, name='cond_rnn_1'))([x, c])
     x = Dense(units=NUM_CLASSES, activation='softmax')(x)
     model2 = Model(inputs=[i, c], outputs=[x])
 
