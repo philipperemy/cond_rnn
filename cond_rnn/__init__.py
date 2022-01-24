@@ -1,1 +1,1 @@
-from cond_rnn.cond_rnn import Conditional  # noqa
+from cond_rnn.cond_rnn import ConditionalRecurrent  # noqa

@@ -28,22 +28,24 @@ Refer to the example posted below.
 
 ## Functional API
 
-
 ```python
-from cond_rnn import Conditional
-outputs = Conditional(GRU(10))
+from cond_rnn import ConditionalRecurrent
+
+outputs = ConditionalRecurrent(GRU(10))
 ```
 
 The conditional RNN expects those parameters:
 
-- `units`: int, The number of units in the RNN Cell.
-- `cell`: string, cell class or object (pre-instantiated). In the case of string, `'GRU'`, `'LSTM'` and `'RNN'` are supported.
-- ` *args, **kwargs`: Any parameters of the [tf.keras.layers.RNN](https://www.tensorflow.org/api_docs/python/tf/keras/layers/RNN) class, such as `return_sequences`, `return_state`, `stateful`, `unroll`...
+- `layer`: a tf.keras.layers.Layer like LSTM, GRU or SimpleRNN.
 
 **Call**
 
+The layer expects a list of two inputs:
+
 - `inputs`: `3-D` Tensor with shape `[batch_size, timesteps, input_dim]`.
 - `cond`: `2-D` Tensor or list of tensors with shape `[batch_size, cond_dim]`. In the case of a list, the tensors can have a different `cond_dim`.
+- `training`: Python boolean indicating whether the layer should behave in training mode or in inference mode. This argument is passed to the wrapped layer.
+
 
 The output matches the output of the LSTM/GRU modules.
 
@@ -59,7 +61,7 @@ import numpy as np
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 
-from cond_rnn import Conditional
+from cond_rnn import ConditionalRecurrent
 
 stations = 10  # 10 stations.
 time_steps = 365  # 365 days.
@@ -100,7 +102,7 @@ c2 = np.reshape(c2, [-1, c2.shape[-1]])
 print(x.shape, y.shape, c1.shape, c2.shape)
 
 model = Sequential(layers=[
-   Conditional(10, cell='GRU'),  # num_cells = 10
+   ConditionalRecurrent(10, cell='GRU'),  # num_cells = 10
    Dense(units=1, activation='linear')  # regression problem.
 ])
 

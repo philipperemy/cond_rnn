@@ -10,20 +10,20 @@
 #  I used a [p3.2xlarge](https://aws.amazon.com/ec2/instance-types/p3/)
 #  from AWS for computation.
 
+import numpy as np
 # +
 import pandas as pd
-from sklearn.preprocessing import StandardScaler
-from sklearn.metrics import mean_absolute_error
 from sklearn.compose import ColumnTransformer
+from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
-from cond_rnn import Conditional
+from sklearn.preprocessing import StandardScaler
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import GRU
 from tensorflow.keras.models import Sequential
 from tensorflow.python.framework.random_seed import set_seed
-import numpy as np
 
 import temp
+from cond_rnn import ConditionalRecurrent
 
 # settings
 cells = 200
@@ -31,7 +31,7 @@ epochs = 40
 test_size = 0.2
 validation_split = 0  # we set to 0 for fair comparison with armax
 window = 100
-cities = 30         # neighbouring cities to include in cond_rnn vector
+cities = 30  # neighbouring cities to include in cond_rnn vector
 random_state = 123  # random state  fixed for similar result,
 # ideally one should average and report mean
 df = temp.read_data(option='daily')
@@ -42,7 +42,7 @@ df = temp.read_data(option='daily')
 # Again, we mainly look at the temperature in Amsterdam.
 
 df_city = (df.droplevel(level=['region', 'country'])
-             .unstack(level='date').T.sort_index()
+           .unstack(level='date').T.sort_index()
            )
 df_city.Amsterdam.head()
 
@@ -54,13 +54,13 @@ df_cor = df_city.corr()
 df_cor.head()
 # One more is grabbed as the most correlating city is Amsterdam itself
 top_cities = (df_cor[
-    df_cor.index == 'Amsterdam'].T
-                                .nlargest(cities+1, ['Amsterdam'])
-                                .index[0:cities+1].to_list()
-)
+                  df_cor.index == 'Amsterdam'].T
+              .nlargest(cities + 1, ['Amsterdam'])
+              .index[0:cities + 1].to_list()
+              )
 df_data = (df_city[top_cities[1:]].shift(1)
-                                  .assign(Amsterdam=df_city.Amsterdam)
-                                  .dropna()
+           .assign(Amsterdam=df_city.Amsterdam)
+           .dropna()
            )
 df_data.columns = df_data.columns.astype(str)
 
@@ -70,19 +70,20 @@ df_data.columns = df_data.columns.astype(str)
 # For the other cities, only the previous daily temperature is used.
 
 ct = ColumnTransformer([
-        ('Amsterdam', StandardScaler(), ['Amsterdam']),
-        ('Neighbours', StandardScaler(), top_cities[1:])
-    ], remainder='passthrough')
+    ('Amsterdam', StandardScaler(), ['Amsterdam']),
+    ('Neighbours', StandardScaler(), top_cities[1:])
+], remainder='passthrough')
 df_data = pd.DataFrame(ct.fit_transform(df_city[top_cities]),
                        columns=top_cities)
 for lag in range(window):
-    df_data.loc[:, f'x-{lag+1}'] = df_data.Amsterdam.shift(lag+1)
+    df_data.loc[:, f'x-{lag + 1}'] = df_data.Amsterdam.shift(lag + 1)
 df_data = df_data.dropna().sort_index()
 
 # The data is split in a train and test set. Shuffle is disabled to enable
 #  comparison with ARMAX.
 
 train, test = train_test_split(df_data, test_size=test_size, shuffle=False)
+
 
 # Libraries are loaded and the data is reshaped.
 
@@ -109,12 +110,13 @@ history = model.fit(x=x_train, y=y_train, epochs=epochs, batch_size=None,
                     shuffle=True,
                     validation_split=validation_split)
 
+
 # The final test loss is;
 
 
 def inverseAms(data):
     return (ct.named_transformers_['Amsterdam']
-              .inverse_transform(data)
+            .inverse_transform(data)
             )
 
 
@@ -126,7 +128,7 @@ print(f"The MAE is {modelmae:.2f}")
 #  estimate with an exogenous model.
 
 print("WARNING: Install latest version of cond_rnn via git and not pip!")
-model_exog = Sequential(layers=[Conditional(cells, cell='GRU'),
+model_exog = Sequential(layers=[ConditionalRecurrent(GRU(cells)),
                                 Dense(units=1, activation='linear')])
 model_exog.compile(optimizer='adam', loss='mae')
 

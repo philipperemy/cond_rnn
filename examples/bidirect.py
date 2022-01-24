@@ -2,12 +2,12 @@ import numpy as np
 from tensorflow.keras import Sequential
 from tensorflow.keras.layers import Bidirectional, GRU
 
-from cond_rnn import Conditional
+from cond_rnn import ConditionalRecurrent
 
 model = Sequential()
 
-forward_layer = Conditional(GRU(units=12, return_sequences=True))
-backward_layer = Conditional(GRU(units=13, return_sequences=True, go_backwards=True))
+forward_layer = ConditionalRecurrent(GRU(units=12, return_sequences=True))
+backward_layer = ConditionalRecurrent(GRU(units=13, return_sequences=True, go_backwards=True))
 
 # concat mode.
 model.add(Bidirectional(

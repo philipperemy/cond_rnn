@@ -1,25 +1,25 @@
 import tensorflow as tf
+from keras.utils import generic_utils
 from tensorflow.keras import backend as K
 from tensorflow.keras.layers import LSTM, Dense, GRU, RNN, Lambda, Wrapper
 
 
-class Conditional(Wrapper):
+class ConditionalRecurrent(Wrapper):
 
-    # Arguments to the RNN like return_sequences, return_state...
     def __init__(self, layer, **kwargs):
         """
-        Conditional RNN Wrapper.
+        Conditional Recurrent Wrapper.
         """
-        super(Conditional, self).__init__(layer)
-        self.max_num_conditions = 10
+        super(ConditionalRecurrent, self).__init__(layer, **kwargs)
 
     # noinspection PyAttributeOutsideInit
     def build(self, input_shape=None):
         # single cond
         self.dense_init_single = Dense(units=self.layer.units)
         # multi cond
+        max_num_conditions = 10
         self.dense_init_multi = []
-        for i in range(self.max_num_conditions):
+        for i in range(max_num_conditions):
             self.dense_init_multi.append(Dense(units=self.layer.units))
         self.multi_cond_p = Dense(1)
 
@@ -61,16 +61,19 @@ class Conditional(Wrapper):
             raise Exception('Only GRU, LSTM and RNN are supported as cells.')
         return initial_cond
 
-    def call(self, inputs, trainable=None, **kwargs):
+    def call(self, inputs, training=None, **kwargs):
         """
-        :param trainable:
         :param inputs: List of n elements:
                     - [0] 3-D Tensor with shape [batch_size, time_steps, input_dim]. The inputs.
                     - [1:] list of tensors with shape [batch_size, cond_dim]. The conditions.
+        :param training: Python boolean indicating whether the layer should behave in training mode or
+        in inference mode. This argument is passed to the wrapped layer (only if the layer supports this argument).
         In the case of a list, the tensors can have a different cond_dim.
         :return: outputs, states or outputs (if return_state=False)
         """
         assert isinstance(inputs, (list, tuple)) and len(inputs) >= 2
+        if generic_utils.has_arg(self.layer.call, 'training'):
+            kwargs['training'] = training
         x = inputs[0]
         cond = inputs[1:]
         init_state = None
@@ -86,6 +89,4 @@ class Conditional(Wrapper):
         return self.layer(x, initial_state=init_state, **kwargs)
 
     def get_config(self):
-        config = super(Conditional, self).get_config()
-        config.update({'max_num_conditions': self.max_num_conditions})
-        return config
+        return super(ConditionalRecurrent, self).get_config()

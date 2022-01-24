@@ -3,7 +3,7 @@ from tensorflow.keras.layers import Dense, GRU
 from tensorflow.keras.models import Sequential
 from tensorflow.python.keras.utils.np_utils import to_categorical
 
-from cond_rnn import Conditional
+from cond_rnn import ConditionalRecurrent
 
 NUM_SAMPLES = 10000
 TIME_STEPS = 10
@@ -21,7 +21,7 @@ def create_conditions(input_dim):
 
 def main():
     model = Sequential(layers=[
-        Conditional(GRU(10)),
+        ConditionalRecurrent(GRU(10)),
         Dense(units=NUM_CLASSES, activation='softmax')
     ])
 
