@@ -1,43 +1,37 @@
 # Conditional RNN for Tensorflow/Keras
-Conditions time series on time-invariant data. 
-
-`ConditionalRecurrent` is a fully compatible Keras wrapper with `LSTM`, `GRU` and `SimpleRNN` layers.
-
-Tested with all versions of Tensorflow (until 2.8.0, Dec 2021).
 
 [![Downloads](https://pepy.tech/badge/cond-rnn)](https://pepy.tech/project/cond-rnn)
 [![Downloads](https://pepy.tech/badge/cond-rnn/month)](https://pepy.tech/project/cond-rnn/month)
 ![CI](https://github.com/philipperemy/cond_rnn/workflows/Cond%20RNN%20CI/badge.svg)
 
+- Conditions time series on time-invariant data. 
+- ConditionalRecurrent is a fully compatible Keras wrapper with `LSTM`, `GRU` and `SimpleRNN` layers. 
+- Tested with all versions of Tensorflow (until 2.8.0, Dec 2021).
+
+## PyPI
+
+ConditionalRecurrent is on PyPI. You can also install it from the sources.
+
 ```
 pip install cond-rnn
 ```
 
-## Context
+## What is a Conditional RNN?
 
 <p align="center">
   <img src="misc/arch.png" width="500">
 </p>
 
-`ConditionalRecurrent` is useful if you have time series data with external inputs that do not depend on time. 
+The `ConditionalRecurrent` module is useful if you have time series data with external inputs that do not depend on time. 
 
 Let's consider some weather data for two different cities: Paris and San Francisco. The aim is to predict the next temperature data point. Based on our knowledge, the weather behaves differently depending on the city. You can either:
 - Combine the auxiliary features with the time series data (ugly!).
 - Concatenate the auxiliary features with the output of the RNN layer. It's some kind of post-RNN adjustment since the RNN layer won't see this auxiliary info.
 - Or just use this library! Long story short, we initialize the RNN states with a learned representation of the conditions (e.g. Paris or San Francisco). This way, you model *elegantly* `P(x_{t+1}|x_{0:t}, cond)`.
 
-## ConditionalRecurrent
+## API
 
-This Keras wrapper allows to initiate the internal states of any recurrent layer with conditions given as separate inputs.
-
-It can be used on any recurrent layer supported by Keras and also supports more advanced layers like `Bidirectional`.
-
-```python
-from cond_rnn import ConditionalRecurrent
-from tensorflow.keras.layers import GRU
-
-outputs = ConditionalRecurrent(GRU(units=10))
-```
+This Keras wrapper `ConditionalRecurrent` allows to initiate the internal states of any recurrent layer with conditions given as separate inputs. It can be used on any recurrent layer supported by Keras and also supports more advanced layers like `Bidirectional`.
 
 ### Arguments
 
@@ -56,56 +50,17 @@ outputs = ConditionalRecurrent(GRU(units=10))
 ## Example
 
 ```python
-import numpy as np
-from tensorflow.keras.layers import Dense, GRU
-from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
+from tensorflow.keras import Input
+from tensorflow.keras.layers import LSTM
 
 from cond_rnn import ConditionalRecurrent
 
-NUM_SAMPLES = 10_000
-INPUT_DIM = 1
-NUM_CLASSES = 3
-TIME_STEPS = 10
-NUM_CELLS = 12
+time_steps, input_dim, output_dim, batch_size, cond_size = 128, 6, 12, 32, 5
+inputs = Input(batch_input_shape=(batch_size, time_steps, input_dim))
+cond_inputs = Input(batch_input_shape=(batch_size, cond_size))
 
-
-def create_conditions():
-    conditions = np.zeros(shape=[NUM_SAMPLES, NUM_CLASSES])
-    for i, kk in enumerate(conditions):
-        kk[i % NUM_CLASSES] = 1
-    return conditions
-
-
-def main():
-    model = Sequential(layers=[
-        ConditionalRecurrent(GRU(10)),
-        Dense(units=NUM_CLASSES, activation='softmax')
-    ])
-
-    # Define (real) data.
-    train_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
-    test_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
-    test_targets = train_targets = create_conditions()
-
-    model.compile(optimizer=Adam(learning_rate=0.1), loss='categorical_crossentropy', metrics=['accuracy'])
-    model.fit(
-        verbose=2,
-        x=[train_inputs, train_targets], y=train_targets,
-        validation_data=([test_inputs, test_targets], test_targets),
-        epochs=10
-    )
-
-    te_loss, te_acc = model.evaluate([test_inputs, test_targets], test_targets)
-    assert abs(te_acc - 1) < 1e-5
-
-    # want to save the model? You have to use the Functional API for that.
-    # refer to examples/test_cond_rnn.py, there's an example on how to
-    # save/reload a model with ConditionalRecurrent.
-
-
-if __name__ == '__main__':
-    main()
+outputs = ConditionalRecurrent(LSTM(units=output_dim))([inputs, cond_inputs])
+print(outputs.shape)  # (batch_size, output_dim)
 ```
 
 You can also have a look at a real world example to see how `ConditionalRecurrent` performs: [here](examples/temperature).
