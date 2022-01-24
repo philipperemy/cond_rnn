@@ -4,7 +4,7 @@ from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.utils.np_utils import to_categorical
 
-from cond_rnn import ConditionalRNN
+from cond_rnn import Conditional
 
 NUM_SAMPLES = 10000
 TIME_STEPS = 10
@@ -22,7 +22,7 @@ def create_conditions(input_dim):
 
 def main():
     model = Sequential(layers=[
-        ConditionalRNN(rnn=GRU, units=10),
+        Conditional(GRU(10)),
         Dense(units=NUM_CLASSES, activation='softmax')
     ])
 

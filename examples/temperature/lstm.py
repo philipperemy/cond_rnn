@@ -16,7 +16,7 @@ from sklearn.preprocessing import StandardScaler
 from sklearn.metrics import mean_absolute_error
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split
-from cond_rnn import ConditionalRNN
+from cond_rnn import Conditional
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.layers import GRU
 from tensorflow.keras.models import Sequential
@@ -126,7 +126,7 @@ print(f"The MAE is {modelmae:.2f}")
 #  estimate with an exogenous model.
 
 print("WARNING: Install latest version of cond_rnn via git and not pip!")
-model_exog = Sequential(layers=[ConditionalRNN(cells, cell='GRU'),
+model_exog = Sequential(layers=[Conditional(cells, cell='GRU'),
                                 Dense(units=1, activation='linear')])
 model_exog.compile(optimizer='adam', loss='mae')
 

@@ -28,9 +28,10 @@ Refer to the example posted below.
 
 ## Functional API
 
+
 ```python
-import cond_rnn
-outputs = cond_rnn.ConditionalRNN(units=NUM_CELLS, cell='GRU')([inputs, cond])
+from cond_rnn import Conditional
+outputs = Conditional(GRU(10))
 ```
 
 The conditional RNN expects those parameters:
@@ -58,7 +59,7 @@ import numpy as np
 from tensorflow.keras.layers import Dense
 from tensorflow.keras.models import Sequential
 
-from cond_rnn import ConditionalRNN
+from cond_rnn import Conditional
 
 stations = 10  # 10 stations.
 time_steps = 365  # 365 days.
@@ -77,10 +78,10 @@ window = 50  # we split series in 50 days (look-back window)
 
 x, y, c1, c2 = [], [], [], []
 for i in range(window, continuous_data.shape[1]):
-    x.append(continuous_data[:, i - window:i])
-    y.append(continuous_data[:, i])
-    c1.append(condition_data_1)  # just replicate.
-    c2.append(condition_data_2)  # just replicate.
+   x.append(continuous_data[:, i - window:i])
+   y.append(continuous_data[:, i])
+   c1.append(condition_data_1)  # just replicate.
+   c2.append(condition_data_2)  # just replicate.
 
 # now we have (batch_dim, station_dim, time_steps, input_dim).
 x = np.array(x)
@@ -99,8 +100,8 @@ c2 = np.reshape(c2, [-1, c2.shape[-1]])
 print(x.shape, y.shape, c1.shape, c2.shape)
 
 model = Sequential(layers=[
-    ConditionalRNN(10, cell='GRU'),  # num_cells = 10
-    Dense(units=1, activation='linear')  # regression problem.
+   Conditional(10, cell='GRU'),  # num_cells = 10
+   Dense(units=1, activation='linear')  # regression problem.
 ])
 
 model.compile(optimizer='adam', loss='mse')
