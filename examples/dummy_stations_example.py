@@ -1,7 +1,7 @@
 import numpy as np
 from tensorflow.keras import Input
 from tensorflow.keras import Model
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, GRU
 from tensorflow.keras.models import Sequential
 
 from cond_rnn import Conditional
@@ -61,7 +61,7 @@ print(x.shape, y.shape, c1.shape, c2.shape)
 
 print('Sequential API')
 model = Sequential(layers=[
-    Conditional(10, cell='GRU'),  # num_cells = 10
+    Conditional(GRU(10)),  # num_cells = 10
     Dense(units=1, activation='linear')  # regression problem.
 ])
 
@@ -72,7 +72,7 @@ print('Functional API')
 i1 = Input(shape=(window, input_dim))
 ic_1 = Input(shape=(condition_dim_1,))
 ic_2 = Input(shape=(condition_dim_2,))
-m = Conditional(10, cell='GRU')([i1, ic_1, ic_2])
+m = Conditional(GRU(10))([i1, ic_1, ic_2])
 m = Dense(units=1, activation='linear')(m)  # regression problem.
 model2 = Model([i1, ic_1, ic_2], m)
 model2.compile(optimizer='adam', loss='mae')
