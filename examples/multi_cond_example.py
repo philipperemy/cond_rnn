@@ -1,7 +1,6 @@
 import numpy as np
 from tensorflow.keras.layers import Dense, GRU
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.utils.np_utils import to_categorical
 
 from cond_rnn import Conditional
@@ -37,7 +36,7 @@ def main():
     train_targets = to_categorical(train_targets, num_classes=NUM_CLASSES)
     test_targets = to_categorical(test_targets, num_classes=NUM_CLASSES)
 
-    model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     model.fit(
         verbose=2,
         x=[train_inputs, train_cond_1, train_cond_2], y=train_targets,
