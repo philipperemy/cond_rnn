@@ -1,10 +1,9 @@
 import numpy as np
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, GRU
 from tensorflow.keras.models import Sequential
-from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.utils.np_utils import to_categorical
 
-from cond_rnn import ConditionalRNN
+from cond_rnn import ConditionalRecurrent
 
 NUM_SAMPLES = 10000
 TIME_STEPS = 10
@@ -22,7 +21,7 @@ def create_conditions(input_dim):
 
 def main():
     model = Sequential(layers=[
-        ConditionalRNN(NUM_CELLS, cell='GRU'),
+        ConditionalRecurrent(GRU(10)),
         Dense(units=NUM_CLASSES, activation='softmax')
     ])
 
@@ -37,8 +36,9 @@ def main():
     train_targets = to_categorical(train_targets, num_classes=NUM_CLASSES)
     test_targets = to_categorical(test_targets, num_classes=NUM_CLASSES)
 
-    model.compile(optimizer=Adam(), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.compile(optimizer='adam', loss='categorical_crossentropy', metrics=['accuracy'])
     model.fit(
+        verbose=2,
         x=[train_inputs, train_cond_1, train_cond_2], y=train_targets,
         validation_data=([test_inputs, test_cond_1, test_cond_2], test_targets),
         epochs=10

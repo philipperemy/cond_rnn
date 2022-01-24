@@ -1,75 +1,59 @@
-import inspect
-
 import tensorflow as tf
+from keras.utils import generic_utils
+from tensorflow.keras import backend as K
+from tensorflow.keras.layers import LSTM, Dense, GRU, RNN, Lambda, Wrapper
 
 
-def _get_tensor_shape(t):
-    return t.shape
+class ConditionalRecurrent(Wrapper):
 
-
-def _get_arguments_of_constructor(clazz):
-    return list(inspect.signature(clazz.__init__).parameters)
-
-
-class ConditionalRNN(tf.keras.layers.Layer):
-
-    # Arguments to the RNN like return_sequences, return_state...
-    def __init__(self, units, cell=tf.keras.layers.LSTMCell, *args, **kwargs):
+    def __init__(self, layer, **kwargs):
         """
-        Conditional RNN. Conditions time series on categorical data.
-        :param units: int, The number of units in the RNN Cell
-        :param cell: string, cell class or object (pre-instantiated). In the case of string, 'GRU',
-        'LSTM' and 'RNN' are supported.
-        :param args: Any parameters of the tf.keras.layers.RNN class, such as return_sequences,
-        return_state, stateful, unroll...
+        Conditional Recurrent Wrapper.
         """
-        super().__init__()
-        self.units = units
-        self.final_states = None
-        self.init_state = None
-        if isinstance(cell, str):
-            if cell.upper() == 'GRU':
-                cell = tf.keras.layers.GRUCell
-            elif cell.upper() == 'LSTM':
-                cell = tf.keras.layers.LSTMCell
-            elif cell.upper() == 'RNN':
-                cell = tf.keras.layers.SimpleRNNCell
-            else:
-                raise Exception('Only GRU, LSTM and RNN are supported as cells.')
+        super(ConditionalRecurrent, self).__init__(layer, **kwargs)
 
-        rnn_class = tf.keras.layers.RNN
-
-        # split kwargs for cell and RNN classes.
-        args_support_cell = _get_arguments_of_constructor(cell)
-        args_support_rnn = _get_arguments_of_constructor(rnn_class)
-        kwargs_cell = {k: kwargs[k] for k in set(kwargs).intersection(args_support_cell)}
-        kwargs_rnn = {k: kwargs[k] for k in set(kwargs).intersection(args_support_rnn)}
-
-        self._cell = cell if hasattr(cell, 'units') else cell(units=units, **kwargs_cell)
-        self.rnn = rnn_class(cell=self._cell, *args, **kwargs_rnn)
-
+    # noinspection PyAttributeOutsideInit
+    def build(self, input_shape=None):
         # single cond
-        self.cond_to_init_state_dense_1 = tf.keras.layers.Dense(units=self.units)
-
+        self.dense_init_single = Dense(units=self.layer.units)
         # multi cond
         max_num_conditions = 10
-        self.multi_cond_to_init_state_dense = []
+        self.dense_init_multi = []
         for i in range(max_num_conditions):
-            self.multi_cond_to_init_state_dense.append(tf.keras.layers.Dense(units=self.units))
-        self.multi_cond_p = tf.keras.layers.Dense(1, activation=None, use_bias=True)
+            self.dense_init_multi.append(Dense(units=self.layer.units))
+        self.multi_cond_p = Dense(1)
+
+        self.expand_dims_1 = Lambda(lambda x: K.expand_dims(x, axis=0))
+        self.tile_1 = Lambda(lambda x: K.tile(x, [2, 1, 1]))
+
+        self.stack_1 = Lambda(lambda x: K.stack(x, axis=-1))
+        self.squeeze_layer = Lambda(lambda x: K.squeeze(x, axis=-1))
+        self.unstack_layer = Lambda(lambda x: tf.unstack(x, axis=0))
+
+    @property
+    def go_backwards(self):
+        return self.layer.go_backwards
+
+    @property
+    def return_sequences(self):
+        return self.layer.return_sequences
+
+    @property
+    def return_state(self):
+        return self.layer.return_state
 
     def _standardize_condition(self, initial_cond):
         initial_cond_shape = initial_cond.shape
         if len(initial_cond_shape) == 2:
-            initial_cond = tf.expand_dims(initial_cond, axis=0)
+            initial_cond = self.expand_dims_1(initial_cond)
         first_cond_dim = initial_cond.shape[0]
-        if isinstance(self._cell, tf.keras.layers.LSTMCell):
+        if isinstance(self.layer, LSTM):
             if first_cond_dim == 1:
-                initial_cond = tf.tile(initial_cond, [2, 1, 1])
+                initial_cond = self.tile_1(initial_cond)
             elif first_cond_dim != 2:
                 raise Exception('Initial cond should have shape: [2, batch_size, hidden_size] '
                                 'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
-        elif isinstance(self._cell, tf.keras.layers.GRUCell) or isinstance(self._cell, tf.keras.layers.SimpleRNNCell):
+        elif isinstance(self.layer, (GRU, RNN)):
             if first_cond_dim != 1:
                 raise Exception('Initial cond should have shape: [1, batch_size, hidden_size] '
                                 'or [batch_size, hidden_size]. Shapes do not match.', initial_cond_shape)
@@ -77,33 +61,32 @@ class ConditionalRNN(tf.keras.layers.Layer):
             raise Exception('Only GRU, LSTM and RNN are supported as cells.')
         return initial_cond
 
-    def __call__(self, inputs, *args, **kwargs):
+    def call(self, inputs, training=None, **kwargs):
         """
         :param inputs: List of n elements:
                     - [0] 3-D Tensor with shape [batch_size, time_steps, input_dim]. The inputs.
                     - [1:] list of tensors with shape [batch_size, cond_dim]. The conditions.
+        :param training: Python boolean indicating whether the layer should behave in training mode or
+        in inference mode. This argument is passed to the wrapped layer (only if the layer supports this argument).
         In the case of a list, the tensors can have a different cond_dim.
         :return: outputs, states or outputs (if return_state=False)
         """
-        assert (isinstance(inputs, list) or isinstance(inputs, tuple)) and len(inputs) >= 2
+        assert isinstance(inputs, (list, tuple)) and len(inputs) >= 2
+        if generic_utils.has_arg(self.layer.call, 'training'):
+            kwargs['training'] = training
         x = inputs[0]
         cond = inputs[1:]
+        init_state = None
         if len(cond) > 1:  # multiple conditions.
-            init_state_list = []
-            for ii, c in enumerate(cond):
-                init_state_list.append(self.multi_cond_to_init_state_dense[ii](self._standardize_condition(c)))
-            multi_cond_state = self.multi_cond_p(tf.stack(init_state_list, axis=-1))
-            multi_cond_state = tf.squeeze(multi_cond_state, axis=-1)
-            self.init_state = tf.unstack(multi_cond_state, axis=0)
+            init_state_list = [self.dense_init_multi[i](self._standardize_condition(c)) for i, c in enumerate(cond)]
+            multi_cond_state = self.multi_cond_p(self.stack_1(init_state_list))
+            multi_cond_state = self.squeeze_layer(multi_cond_state)
+            init_state = self.unstack_layer(multi_cond_state)
         else:
             cond = self._standardize_condition(cond[0])
             if cond is not None:
-                self.init_state = self.cond_to_init_state_dense_1(cond)
-                self.init_state = tf.unstack(self.init_state, axis=0)
-        out = self.rnn(x, initial_state=self.init_state, *args, **kwargs)
-        if self.rnn.return_state:
-            outputs, h, c = out
-            final_states = tf.stack([h, c])
-            return outputs, final_states
-        else:
-            return out
+                init_state = self.unstack_layer(self.dense_init_single(cond))
+        return self.layer(x, initial_state=init_state, **kwargs)
+
+    def get_config(self):
+        return super(ConditionalRecurrent, self).get_config()

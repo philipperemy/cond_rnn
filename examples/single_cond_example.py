@@ -1,9 +1,9 @@
 import numpy as np
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, GRU
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 
-from cond_rnn import ConditionalRNN
+from cond_rnn import ConditionalRecurrent
 
 NUM_SAMPLES = 10_000
 INPUT_DIM = 1
@@ -21,7 +21,7 @@ def create_conditions():
 
 def main():
     model = Sequential(layers=[
-        ConditionalRNN(NUM_CELLS, cell='GRU'),
+        ConditionalRecurrent(GRU(10)),
         Dense(units=NUM_CLASSES, activation='softmax')
     ])
 
@@ -32,6 +32,7 @@ def main():
 
     model.compile(optimizer=Adam(learning_rate=0.1), loss='categorical_crossentropy', metrics=['accuracy'])
     model.fit(
+        verbose=2,
         x=[train_inputs, train_targets], y=train_targets,
         validation_data=([test_inputs, test_targets], test_targets),
         epochs=10
@@ -39,6 +40,10 @@ def main():
 
     te_loss, te_acc = model.evaluate([test_inputs, test_targets], test_targets)
     assert abs(te_acc - 1) < 1e-5
+
+    # want to save the model? You have to use the Functional API for that.
+    # refer to examples/test_cond_rnn.py, there's an example on how to
+    # save/reload a model with ConditionalRecurrent.
 
 
 if __name__ == '__main__':
