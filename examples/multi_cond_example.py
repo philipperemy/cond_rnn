@@ -1,5 +1,5 @@
 import numpy as np
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, GRU
 from tensorflow.keras.models import Sequential
 from tensorflow.keras.optimizers import Adam
 from tensorflow.python.keras.utils.np_utils import to_categorical
@@ -22,7 +22,7 @@ def create_conditions(input_dim):
 
 def main():
     model = Sequential(layers=[
-        ConditionalRNN(NUM_CELLS, cell='GRU'),
+        ConditionalRNN(rnn=GRU, units=10),
         Dense(units=NUM_CLASSES, activation='softmax')
     ])
 

@@ -16,29 +16,25 @@ class ConditionalRNN(Layer):
         return_state, stateful, unroll...
         """
         super(ConditionalRNN, self).__init__()
-        self.final_states = None
-        self.init_state = None
-        # split kwargs for cell and RNN classes.
+        self.max_num_conditions = 10
         self.rnn = rnn(units=units, *args, **kwargs)
 
+    # noinspection PyAttributeOutsideInit
     def build(self, input_shape):
         # single cond
-        self.cond_to_init_state_dense_1 = Dense(units=self.rnn.units)
+        self.dense_init_single = Dense(units=self.rnn.units)
         # multi cond
-        max_num_conditions = 10
         self.dense_init_multi = []
-        for i in range(max_num_conditions):
+        for i in range(self.max_num_conditions):
             self.dense_init_multi.append(Dense(units=self.rnn.units))
         self.multi_cond_p = Dense(1)
 
         self.expand_dims_1 = Lambda(lambda x: K.expand_dims(x, axis=0))
         self.tile_1 = Lambda(lambda x: K.tile(x, [2, 1, 1]))
 
-        self.multi_cond_proj = Lambda(
-            lambda x: tf.unstack(
-                tf.squeeze(
-                    self.multi_cond_p(
-                        tf.stack(x, axis=-1)), axis=-1), axis=0))
+        self.stack_1 = Lambda(lambda x: K.stack(x, axis=-1))
+        self.squeeze_layer = Lambda(lambda x: K.squeeze(x, axis=-1))
+        self.unstack_layer = Lambda(lambda x: tf.unstack(x, axis=0))
 
     @property
     def go_backwards(self):
@@ -87,21 +83,14 @@ class ConditionalRNN(Layer):
         cond = inputs[1:]
         if len(cond) > 1:  # multiple conditions.
             init_state_list = [self.dense_init_multi[i](self._standardize_condition(c)) for i, c in enumerate(cond)]
-            # multi_cond_state = self.multi_cond_p(tf.stack(init_state_list, axis=-1))
-            # multi_cond_state = tf.squeeze(multi_cond_state, axis=-1)
-            self.init_state = self.multi_cond_proj(init_state_list) # tf.unstack(multi_cond_state, axis=0)
+            multi_cond_state = self.multi_cond_p(self.stack_1(init_state_list))
+            multi_cond_state = self.squeeze_layer(multi_cond_state)
+            init_state = self.unstack_layer(multi_cond_state)
         else:
             cond = self._standardize_condition(cond[0])
             if cond is not None:
-                self.init_state = self.cond_to_init_state_dense_1(cond)
-                self.init_state = tf.unstack(self.init_state, axis=0)
-        out = self.rnn(x, initial_state=self.init_state, **kwargs)
-        if self.rnn.return_state:
-            outputs, h, c = out
-            final_states = tf.stack([h, c])
-            return outputs, final_states
-        else:
-            return out
+                init_state = self.unstack_layer(self.dense_init_single(cond))
+        return self.rnn(x, initial_state=init_state, **kwargs)
 
     def get_config(self):
         return self.rnn.get_config()
