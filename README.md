@@ -1,5 +1,9 @@
 # Conditional RNN for Tensorflow/Keras
-Conditions time series on time-invariant data. Tested with Tensorflow 2.3, 2.4, 2.5 and 2.6.
+Conditions time series on time-invariant data. 
+
+`ConditionalRecurrent` is a fully compatible Keras wrapper with `LSTM`, `GRU` and `SimpleRNN` layers.
+
+Tested with all versions of Tensorflow (until 2.8.0, Dec 2021).
 
 [![Downloads](https://pepy.tech/badge/cond-rnn)](https://pepy.tech/project/cond-rnn)
 [![Downloads](https://pepy.tech/badge/cond-rnn/month)](https://pepy.tech/project/cond-rnn/month)
@@ -9,110 +13,104 @@ Conditions time series on time-invariant data. Tested with Tensorflow 2.3, 2.4, 
 pip install cond-rnn
 ```
 
-## Introduction
+## Context
 
 <p align="center">
   <img src="misc/arch.png" width="500">
 </p>
 
-CondRNN is useful if you have some time series data with external inputs that do not depend on time. 
+`ConditionalRecurrent` is useful if you have time series data with external inputs that do not depend on time. 
 
 Let's consider some weather data for two different cities: Paris and San Francisco. The aim is to predict the next temperature data point. Based on our knowledge, the weather behaves differently depending on the city. You can either:
 - Combine the auxiliary features with the time series data (ugly!).
 - Concatenate the auxiliary features with the output of the RNN layer. It's some kind of post-RNN adjustment since the RNN layer won't see this auxiliary info.
 - Or just use this library! Long story short, we initialize the RNN states with a learned representation of the conditions (e.g. Paris or San Francisco). This way, you model *elegantly* `P(x_{t+1}|x_{0:t}, cond)`.
 
-## Sequential API
+## ConditionalRecurrent
 
-Refer to the example posted below.
+This Keras wrapper allows to initiate the internal states of any recurrent layer with conditions given as separate inputs.
 
-## Functional API
+It can be used on any recurrent layer supported by Keras and also supports more advanced layers like `Bidirectional`.
 
 ```python
 from cond_rnn import ConditionalRecurrent
+from tensorflow.keras.layers import GRU
 
-outputs = ConditionalRecurrent(GRU(10))
+outputs = ConditionalRecurrent(GRU(units=10))
 ```
 
-The conditional RNN expects those parameters:
+### Arguments
 
-- `layer`: a tf.keras.layers.Layer like LSTM, GRU or SimpleRNN.
+- **layer**: a `tf.keras.layers.Layer` instance (`LSTM`, `GRU` or `SimpleRNN`...).
 
-**Call**
+### Call arguments
 
-The layer expects a list of two inputs:
+- **inputs**: `3-D` Tensor with shape `[batch_size, timesteps, input_dim]`.
+- **inputs_cond**: `2-D` Tensor or list of tensors with shape `[batch_size, cond_dim]`. In the case of a list, the tensors can have a different `cond_dim`.
+- **training**: Python boolean indicating whether the layer should behave in training mode or in inference mode. This argument is passed to the wrapped layer.
 
-- `inputs`: `3-D` Tensor with shape `[batch_size, timesteps, input_dim]`.
-- `cond`: `2-D` Tensor or list of tensors with shape `[batch_size, cond_dim]`. In the case of a list, the tensors can have a different `cond_dim`.
-- `training`: Python boolean indicating whether the layer should behave in training mode or in inference mode. This argument is passed to the wrapped layer.
+### Raises
 
-
-The output matches the output of the LSTM/GRU modules.
-
+*ValueError*: If not initialized with a `tf.keras.layers.Layer` instance.
 
 ## Example
 
 ```python
-# 10 stations
-# 365 days
-# 3 continuous variables A and B => C is target.
-# 2 conditions dim=5 and dim=1. First cond is one-hot. Second is continuous.
 import numpy as np
-from tensorflow.keras.layers import Dense
+from tensorflow.keras.layers import Dense, GRU
 from tensorflow.keras.models import Sequential
+from tensorflow.keras.optimizers import Adam
 
 from cond_rnn import ConditionalRecurrent
 
-stations = 10  # 10 stations.
-time_steps = 365  # 365 days.
-continuous_variables_per_station = 3  # A,B,C where C is the target.
-condition_variables_per_station = 2  # 2 variables of dim 5 and 1.
-condition_dim_1 = 5
-condition_dim_2 = 1
+NUM_SAMPLES = 10_000
+INPUT_DIM = 1
+NUM_CLASSES = 3
+TIME_STEPS = 10
+NUM_CELLS = 12
 
-np.random.seed(123)
-continuous_data = np.random.uniform(size=(stations, time_steps, continuous_variables_per_station))
-condition_data_1 = np.zeros(shape=(stations, condition_dim_1))
-condition_data_1[:, 0] = 1  # dummy.
-condition_data_2 = np.random.uniform(size=(stations, condition_dim_2))
 
-window = 50  # we split series in 50 days (look-back window)
+def create_conditions():
+    conditions = np.zeros(shape=[NUM_SAMPLES, NUM_CLASSES])
+    for i, kk in enumerate(conditions):
+        kk[i % NUM_CLASSES] = 1
+    return conditions
 
-x, y, c1, c2 = [], [], [], []
-for i in range(window, continuous_data.shape[1]):
-   x.append(continuous_data[:, i - window:i])
-   y.append(continuous_data[:, i])
-   c1.append(condition_data_1)  # just replicate.
-   c2.append(condition_data_2)  # just replicate.
 
-# now we have (batch_dim, station_dim, time_steps, input_dim).
-x = np.array(x)
-y = np.array(y)
-c1 = np.array(c1)
-c2 = np.array(c2)
+def main():
+    model = Sequential(layers=[
+        ConditionalRecurrent(GRU(10)),
+        Dense(units=NUM_CLASSES, activation='softmax')
+    ])
 
-print(x.shape, y.shape, c1.shape, c2.shape)
+    # Define (real) data.
+    train_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
+    test_inputs = np.random.uniform(size=(NUM_SAMPLES, TIME_STEPS, INPUT_DIM))
+    test_targets = train_targets = create_conditions()
 
-# let's collapse the station_dim in the batch_dim.
-x = np.reshape(x, [-1, window, x.shape[-1]])
-y = np.reshape(y, [-1, y.shape[-1]])
-c1 = np.reshape(c1, [-1, c1.shape[-1]])
-c2 = np.reshape(c2, [-1, c2.shape[-1]])
+    model.compile(optimizer=Adam(learning_rate=0.1), loss='categorical_crossentropy', metrics=['accuracy'])
+    model.fit(
+        verbose=2,
+        x=[train_inputs, train_targets], y=train_targets,
+        validation_data=([test_inputs, test_targets], test_targets),
+        epochs=10
+    )
 
-print(x.shape, y.shape, c1.shape, c2.shape)
+    te_loss, te_acc = model.evaluate([test_inputs, test_targets], test_targets)
+    assert abs(te_acc - 1) < 1e-5
 
-model = Sequential(layers=[
-   ConditionalRecurrent(10, cell='GRU'),  # num_cells = 10
-   Dense(units=1, activation='linear')  # regression problem.
-])
+    # want to save the model? You have to use the Functional API for that.
+    # refer to examples/test_cond_rnn.py, there's an example on how to
+    # save/reload a model with ConditionalRecurrent.
 
-model.compile(optimizer='adam', loss='mse')
-model.fit(x=[x, c1, c2], y=y, epochs=2, validation_split=0.2)
+
+if __name__ == '__main__':
+    main()
 ```
 
-You can also have a look at a real world example to see how CondRNN performs compared to LSTM, GRU: [here](examples/temperature).
+You can also have a look at a real world example to see how `ConditionalRecurrent` performs: [here](examples/temperature).
 
-## Background
+## A bit more background...
 
 This implementation was inspired from the very good answer: [Adding Features To Time Series Model LSTM](https://datascience.stackexchange.com/a/17139), which I quote below. The option 3 was implemented in this library (with a slight modification: we do not add 𝑣⃗ to the hidden state but rather overwrite the hidden state by 𝑣⃗. We can argue that this is almost exactly the same thing as 𝑣⃗ is obtained 𝑣⃗ =𝐖𝑥⃗ +𝑏⃗ where 𝑏⃗ could be the hidden state).
 
@@ -174,7 +172,6 @@ This approach is the most "theoretically" correct, since it properly conditions 
   howpublished = {\url{https://github.com/philipperemy/cond_rnn}},
 }
 ```
-
 
 ## FAQ
 
