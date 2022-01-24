@@ -5,7 +5,7 @@
 ![CI](https://github.com/philipperemy/cond_rnn/workflows/Cond%20RNN%20CI/badge.svg)
 
 - Conditions time series on time-invariant data. 
-- ConditionalRecurrent is a fully compatible Keras wrapper with `LSTM`, `GRU` and `SimpleRNN` layers. 
+- Conditional RNN is a fully compatible Keras wrapper with `LSTM`, `GRU` and `SimpleRNN` layers. 
 - Tested with all versions of Tensorflow (until 2.8.0, Dec 2021).
 
 ## PyPI
