@@ -12,5 +12,6 @@ setup(
     install_requires=[
         'numpy',
         'tensorflow>=2.3.0',
+        'protobuf<=3.20'
     ]
 )
