@@ -6,7 +6,7 @@
 
 - Conditions time series predictions on time-invariant data. 
 - Conditional RNN is a fully compatible Keras wrapper which supports any recurrent layer. 
-- Tested with all versions of Tensorflow (until 2.8.0, Dec 2021).
+- Tested with all versions of Tensorflow (until 2.10, Sep 2022).
 
 ## Installation / PyPI
 
