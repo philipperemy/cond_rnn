@@ -29,7 +29,7 @@ The `ConditionalRecurrent` layer is useful if you have time series data with ext
 
 ## API
 
-This Keras wrapper `ConditionalRecurrent` allows to initiate the internal states of any recurrent layer with conditions given as separate inputs. It can be used on any recurrent layer supported by Keras and also supports more advanced layers like `Bidirectional`.
+This Keras wrapper `ConditionalRecurrent` initiates the internal states of recurrent layers with conditions given as separate inputs. It can be used on any recurrent layer supported by Keras and also supports more advanced layers like `Bidirectional`.
 
 ### Arguments
 
