@@ -1,11 +1,11 @@
-# Conditional RNN for Tensorflow/Keras
+# Conditional Recurrent for Tensorflow/Keras
 
 [![Downloads](https://pepy.tech/badge/cond-rnn)](https://pepy.tech/project/cond-rnn)
 [![Downloads](https://pepy.tech/badge/cond-rnn/month)](https://pepy.tech/project/cond-rnn/month)
 ![CI](https://github.com/philipperemy/cond_rnn/workflows/Cond%20RNN%20CI/badge.svg)
 
 - Conditions time series predictions on time-invariant data. 
-- Conditional RNN is a fully compatible Keras wrapper which supports any recurrent layer. 
+- `ConditionalRecurrent` is a fully compatible Keras wrapper which supports any recurrent layer. 
 - Tested with all versions of Tensorflow (until 2.10, Sep 2022).
 
 ## Installation / PyPI
