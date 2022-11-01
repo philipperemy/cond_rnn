@@ -14,7 +14,7 @@ install_requires = ['numpy', tensorflow, 'tensorflow_addons']
 
 setup(
     name='cond-rnn',
-    version='3.1',
+    version='3.1.1',
     description='Conditional RNN',
     author='Philippe Remy',
     license='MIT',
