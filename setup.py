@@ -10,11 +10,11 @@ if platform.system() == 'Darwin' and platform.processor() == 'arm':
     os.environ['GRPC_PYTHON_BUILD_SYSTEM_OPENSSL'] = '1'
     os.environ['GRPC_PYTHON_BUILD_SYSTEM_ZLIB'] = '1'
 
-install_requires = ['numpy', tensorflow, 'tensorflow_addons']
+install_requires = ['numpy', tensorflow, 'tensorflow_addons', "protobuf<=3.20"]
 
 setup(
     name='cond-rnn',
-    version='3.1',
+    version='3.1.1',
     description='Conditional RNN',
     author='Philippe Remy',
     license='MIT',
