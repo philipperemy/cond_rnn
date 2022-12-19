@@ -17,7 +17,7 @@ class ConditionalRecurrent(Wrapper):
         # single cond
         self.dense_init_single = Dense(units=self.layer.units)
         # multi cond
-        max_num_conditions = 10
+        max_num_conditions = 20
         self.dense_init_multi = []
         for i in range(max_num_conditions):
             self.dense_init_multi.append(Dense(units=self.layer.units))
