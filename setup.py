@@ -14,7 +14,7 @@ install_requires = ['numpy', tensorflow, 'tensorflow_addons', "protobuf<=3.20"]
 
 setup(
     name='cond-rnn',
-    version='3.2.0',
+    version='3.2.1',
     description='Conditional RNN',
     author='Philippe Remy',
     license='MIT',
