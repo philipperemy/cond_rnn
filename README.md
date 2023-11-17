@@ -7,7 +7,7 @@
 - Conditions time series predictions on time-invariant data. 
 - `ConditionalRecurrent` is a fully compatible Keras wrapper which supports any recurrent layer. 
 
-Tested with Tensorflow 2.9, 2.10, 2.11, 2.12, 2.13 and 2.14 (Sep 26, 2023).
+Tested with Tensorflow 2.9, 2.10, 2.11, 2.12, 2.13, 2.14 and 2.15 (Nov 17, 2023).
 
 ## Installation / PyPI
 
